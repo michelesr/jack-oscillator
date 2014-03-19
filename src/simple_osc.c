@@ -82,46 +82,46 @@ void print_help_message() {
 }
 
 void calc_note_frqs(jack_default_audio_sample_t srate) {
-	int i;
-	for(i=0; i<128; i++)
-		note_frqs[i] = (2.0 * 440.0 / 32.0) * pow(2, (((jack_default_audio_sample_t)i - 9.0) / 12.0)) / srate;
+  int i;
+  for(i=0; i<128; i++)
+    note_frqs[i] = (2.0 * 440.0 / 32.0) * pow(2, (((jack_default_audio_sample_t)i - 9.0) / 12.0)) / srate;
 }
 
 int process(jack_nframes_t nframes, void *arg) {
-	int i;
-	void* port_buf = jack_port_get_buffer(input_port, nframes);
-	jack_default_audio_sample_t *out = (jack_default_audio_sample_t *) jack_port_get_buffer (output_port, nframes);
-	jack_midi_event_t in_event;
-	jack_nframes_t event_index = 0;
-	jack_nframes_t event_count = jack_midi_get_event_count(port_buf);
+  int i;
+  void* port_buf = jack_port_get_buffer(input_port, nframes);
+  jack_default_audio_sample_t *out = (jack_default_audio_sample_t *) jack_port_get_buffer (output_port, nframes);
+  jack_midi_event_t in_event;
+  jack_nframes_t event_index = 0;
+  jack_nframes_t event_count = jack_midi_get_event_count(port_buf);
   
-	/*if(event_count > 1)
-	{
-		 printf(" midisine: have %d events\n", event_count); 
-		for(i=0; i<event_count; i++)
-		{
-			jack_midi_event_get(&in_event, port_buf, i);
-			 printf("    event %d time is %d. 1st byte is 0x%x\n", i, in_event.time, *(in_event.buffer)); 
-		}
-  	printf("1st byte of 1st event addr is %p\n", in_events[0].buffer);
-	} */ 
+  /*if(event_count > 1)
+  {
+     printf(" midisine: have %d events\n", event_count); 
+    for(i=0; i<event_count; i++)
+    {
+      jack_midi_event_get(&in_event, port_buf, i);
+       printf("    event %d time is %d. 1st byte is 0x%x\n", i, in_event.time, *(in_event.buffer)); 
+    }
+    printf("1st byte of 1st event addr is %p\n", in_events[0].buffer);
+  } */ 
 
-	jack_midi_event_get(&in_event, port_buf, 0);
-	for(i=0; i<nframes; i++) {
+  jack_midi_event_get(&in_event, port_buf, 0);
+  for(i=0; i<nframes; i++) {
     if((in_event.time == i) && (event_index < event_count)) {
       if( ((*(in_event.buffer) & 0xf0)) == 0x90 ) {
-				/* note on */
-				note = *(in_event.buffer + 1);
-				note_on = 1;
-			}
-			else if( ((*(in_event.buffer)) & 0xf0) == 0x80 ) {
-				/* note off */
-				note = *(in_event.buffer + 1);
-				note_on = 0;
-			}
-			event_index++;
-			if(event_index < event_count)
-				jack_midi_event_get(&in_event, port_buf, event_index);
+        /* note on */
+        note = *(in_event.buffer + 1);
+        note_on = 1;
+      }
+      else if( ((*(in_event.buffer)) & 0xf0) == 0x80 ) {
+        /* note off */
+        note = *(in_event.buffer + 1);
+        note_on = 0;
+      }
+      event_index++;
+      if(event_index < event_count)
+        jack_midi_event_get(&in_event, port_buf, event_index);
     }
     if (note_on) {
       ramp += note_frqs[note];
@@ -146,21 +146,21 @@ int process(jack_nframes_t nframes, void *arg) {
     else 
       out[i] = note_on;
   }
-	return 0;      
+  return 0;      
 }
 
 int srate(jack_nframes_t nframes, void *arg) {
-	printf("Sample Rate = %" PRIu32 "/sec\n", nframes);
-	calc_note_frqs((jack_default_audio_sample_t)nframes);
-	return 0;
+  printf("Sample Rate = %" PRIu32 "/sec\n", nframes);
+  calc_note_frqs((jack_default_audio_sample_t)nframes);
+  return 0;
 }
 
 void jack_shutdown(void *arg) {
-	exit(1);
+  exit(1);
 }
 
 int main(int argc, char **argv) {
-	jack_client_t *client;
+  jack_client_t *client;
   char c;
   char name[11];
 
@@ -172,29 +172,29 @@ int main(int argc, char **argv) {
     strcpy(name, argv[1]);
   }
 
-	if ((client = jack_client_open (name, JackNullOption, NULL)) == 0) {
-		fprintf(stderr, "jack server not running?\n");
-		return 1;
-	}
-	
-	calc_note_frqs(jack_get_sample_rate (client));
-	jack_set_process_callback (client, process, 0);
-	jack_set_sample_rate_callback (client, srate, 0);
-	jack_on_shutdown (client, jack_shutdown, 0);
+  if ((client = jack_client_open (name, JackNullOption, NULL)) == 0) {
+    fprintf(stderr, "jack server not running?\n");
+    return 1;
+  }
+  
+  calc_note_frqs(jack_get_sample_rate (client));
+  jack_set_process_callback (client, process, 0);
+  jack_set_sample_rate_callback (client, srate, 0);
+  jack_on_shutdown (client, jack_shutdown, 0);
 
-	input_port = jack_port_register (client, "midi_in", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
-	output_port = jack_port_register (client, "audio_out", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+  input_port = jack_port_register (client, "midi_in", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
+  output_port = jack_port_register (client, "audio_out", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
 
-	if (jack_activate (client)) {
-		fprintf(stderr, "cannot activate client");
-		return 1;
-	}
+  if (jack_activate (client)) {
+    fprintf(stderr, "cannot activate client");
+    return 1;
+  }
 
-	/* shell loop */
+  /* shell loop */
   printf("Hi! if you need help, type h\n"
          "To close the synth, type q or ^D\n%s: ", name);
 
-	while((c = getchar()) != 'q' && c != EOF) 
+  while((c = getchar()) != 'q' && c != EOF) 
   {
       switch(c)
       {
@@ -222,7 +222,7 @@ int main(int argc, char **argv) {
       if (c != '\n' && c != '\t' && c != ' ')
         printf("%s: ", name);
   }
-	jack_client_close(client);
+  jack_client_close(client);
   printf("Bye!\n");
   return 0;
 }
