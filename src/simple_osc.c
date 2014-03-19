@@ -27,32 +27,50 @@
 #include <jack/jack.h>
 #include <jack/midiport.h>
 
+#define FORMS 3 /* number of implemented waveforms */
+
 jack_port_t *input_port;
 jack_port_t *output_port;
+
 jack_default_audio_sample_t ramp=0.0;
 jack_default_audio_sample_t note_on;
+
+jack_default_audio_sample_t note_frqs[128];
+
 double max_amplitude = 0.5;
 int fi = 20; /* fourier iterations */
 unsigned char note = 0;
 char waveform = 'a';
-jack_default_audio_sample_t note_frqs[128];
+
+int check_waveform(char c) {
+  char valid_forms[FORMS];
+  int i, v;
+  for (i=0; i < FORMS; i++) 
+    valid_forms[i] = (i + 'a');
+  for (i=0; i < FORMS && c != valid_forms[i]; i++); 
+  return (i < FORMS); 
+}
 
 void set_waveform() {
   char name[10];
   char c;
+
   while(getchar() != '\n');
+
   printf("Select waveform: \n"
          "a) sine\n"
          "b) square\n"
          "c) sawtooth\n"
          "waveform: ");
+
   c = getchar();
-  while (c != 'a' && c !='b' && c != 'c') {
+  while (!check_waveform(c)) {
     printf("invalid waveform\n");
     while(getchar() != '\n');
     printf("waveform: ");
     scanf("%c", &c);
   }
+
   waveform = c;
   switch(c) {
     case 'a':
@@ -65,12 +83,24 @@ void set_waveform() {
       strcpy(name, "sawtooth");
       break;
   }
+
   printf("Changed waveform: %s\n", name);
 }
 
 void set_fi() {
-  printf("N° of fourier iterations: ");
-  scanf("%d", &fi); 
+  do { 
+    printf("N° of fourier iterations: ");
+    scanf("%d", &fi);
+  }  
+  while (fi < 1); 
+}
+
+void set_amplitude() {
+  printf("Set new max amplitude: ");
+  scanf("%lf", &max_amplitude);
+  printf("New amplitude = %.2lf\n",  max_amplitude);
+  if (max_amplitude < 0)
+    printf("A < 0 => Inverted Phase\n"); 
 }
 
 void print_help_message() {
@@ -199,15 +229,13 @@ int main(int argc, char **argv) {
       switch(c)
       {
         case 'A':
-          printf("Set new max amplitude: ");
-          scanf("%lf", &max_amplitude);
-          printf("New amplitude = %.2lf\n",  max_amplitude);
+          set_amplitude();
           break;
         case 'W':
           set_waveform();
           break;
         case 'h':
-          printf("help message\n");
+          print_help_message();
           break;
         case 'i':
           set_fi();
