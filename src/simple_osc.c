@@ -27,8 +27,17 @@
 #include <jack/jack.h>
 #include <jack/midiport.h>
 
-#define FORMS 4 /* number of implemented waveforms */
+/* number of implemented waveforms */
+#define FORMS 4 
+
+/* frequence of A4 */
 #define TUNING 440.0 
+
+/* gain adjustment for waveforms */
+#define GAIN_SIN 1.0
+#define GAIN_SQR 0.85
+#define GAIN_SAW 0.885
+#define GAIN_TRI 1.01
 
 /* global vars */
 
@@ -215,22 +224,22 @@ int process(jack_nframes_t nframes, void *arg) {
       int k;
       switch(waveform) {
         case 'a':
-          out[i] = max_amplitude * note_on*sin(2*M_PI*ramp);
+          out[i] = GAIN_SIN * max_amplitude * note_on * sin(2*M_PI*ramp);
           break;
         case 'b':
           for (k=1; k <= fi; k++) 
             x += (sin(2*M_PI*ramp*(2*k -1))/(2*k -1));
-          out[i] = max_amplitude * note_on*4*x/M_PI;
+          out[i] = GAIN_SQR * max_amplitude * note_on*4*x/M_PI;
           break;
         case 'c':
           for (k=1; k <= fi; k++)
             x += pow(-1,k)/k * sin(2*M_PI*ramp*k); 
-          out[i] = note_on * max_amplitude * x *2/M_PI;
+          out[i] = GAIN_SAW * note_on * max_amplitude * x *(-2)/M_PI;
           break;
         case 'd':
           for (k=0; k < fi; k++)
             x += pow(-1,k) * sin(2*M_PI*ramp*(2*k+1))/(2*k+1)/(2*k+1); 
-          out[i] = note_on * max_amplitude * x * 8 / M_PI / M_PI;
+          out[i] = GAIN_TRI *note_on * max_amplitude * x * 8 / M_PI / M_PI;
           break;
       }
     }
@@ -272,8 +281,8 @@ int main(int argc, char **argv) {
   jack_set_sample_rate_callback(client, srate, 0);
   jack_on_shutdown(client, jack_shutdown, 0);
 
-  in_p = jack_port_register(client, "Midi IN", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
-  out_p = jack_port_register(client, "Audio OUT", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+  in_p = jack_port_register(client, "in", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
+  out_p = jack_port_register(client, "out", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
 
   if (jack_activate(client)) {
     fprintf(stderr, "cannot activate client");
