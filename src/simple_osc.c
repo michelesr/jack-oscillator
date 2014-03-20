@@ -223,13 +223,15 @@ int process(jack_nframes_t nframes, void *arg) {
           out[i] = max_amplitude * note_on*4*x/M_PI;
           break;
         case 'c':
-          for (k=1; k < fi; k++)
+          for (k=1; k <= fi; k++)
             x += pow(-1,k)/k * sin(2*M_PI*ramp*k); 
           out[i] = note_on * max_amplitude * x *2/M_PI;
+          break;
         case 'd':
-          for (k=1; k < fi; k++)
-            x += pow(-1,k)/k * sin(2*M_PI*ramp*(2*k+1))/(2*k+1)/(2*k+1); 
-          out[i] = note_on * max_amplitude * 8/M_PI/M_PI * 60 * x;
+          for (k=0; k < fi; k++)
+            x += pow(-1,k) * sin(2*M_PI*ramp*(2*k+1))/(2*k+1)/(2*k+1); 
+          out[i] = note_on * max_amplitude * x * 8 / M_PI / M_PI;
+          break;
       }
     }
     else 
