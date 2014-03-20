@@ -3,7 +3,7 @@ MikeSimpleOsc
 
 Single oscillator synth with simple waveforms for JACK (Jack Audio Connection Kit) 
 
-This is a single-oscillator synthesizer with simple waveforms (sine, square, triangle), you can select the waveform, amplitude, e precision of the fourier expansion with the shell interface.
+This is a single-oscillator synthesizer with simple waveforms (sine, square, sawtooth, triangle), you can select the waveform, amplitude, e precision of the fourier expansion with the shell interface.
 
 COMPILATION
 
