@@ -27,20 +27,37 @@
 #include <jack/jack.h>
 #include <jack/midiport.h>
 
-#define FORMS 3 /* number of implemented waveforms */
+#define FORMS 4 /* number of implemented waveforms */
+#define TUNING 440.0 
 
-jack_port_t *input_port;
-jack_port_t *output_port;
+/* global vars */
 
-jack_default_audio_sample_t ramp=0.0;
-jack_default_audio_sample_t note_on;
+typedef jack_default_audio_sample_t sample_t;
 
-jack_default_audio_sample_t note_frqs[128];
+jack_port_t *in_p;
+jack_port_t *out_p;
 
+sample_t ramp = 0.0;
+sample_t note_on;
+sample_t note_frqs[128];
 double max_amplitude = 0.5;
-int fi = 20; /* fourier iterations */
-unsigned char note = 0;
+unsigned char note = 0; 
 char waveform = 'a';
+int fi = 20; /* fourier iterations */
+
+/* function declaration */
+
+int check_waveform(char);
+int process(jack_nframes_t, void*);
+int srate(jack_nframes_t, void*);
+void set_waveform();
+void set_fi();
+void print_help_message();
+void calc_note_frqs(sample_t); 
+void jack_shutdown(void *); 
+void shell_loop(char *);
+
+/* function definition */
 
 int check_waveform(char c) {
   char valid_forms[FORMS];
@@ -61,6 +78,7 @@ void set_waveform() {
          "a) sine\n"
          "b) square\n"
          "c) sawtooth\n"
+         "d) triangle\n"
          "waveform: ");
 
   c = getchar();
@@ -81,6 +99,9 @@ void set_waveform() {
       break;
     case 'c':
       strcpy(name, "sawtooth");
+      break;
+    case 'd':
+      strcpy(name, "triangle");
       break;
   }
 
@@ -111,16 +132,50 @@ void print_help_message() {
          "The number of fourier iterations is related to the precision of the waveform... more is higher, and more cpu power is needed... you can set at around 20 or higher if you want (will your ear notice the difference?).\n"); 
 }
 
-void calc_note_frqs(jack_default_audio_sample_t srate) {
+void shell_loop(char *name) {
+  char c;
+  printf("Hi! if you need help, type h\n"
+         "To close the synth, type q or ^D\n%s: ", name);
+
+  /* shell loop */
+  while((c = getchar()) != 'q' && c != EOF) 
+  {
+      switch(c)
+      {
+        case 'A':
+          set_amplitude();
+          break;
+        case 'W':
+          set_waveform();
+          break;
+        case 'h':
+          print_help_message();
+          break;
+        case 'i':
+          set_fi();
+        case '\n':
+        case ' ':
+        case '\t':
+          break;
+        default:
+          printf("invalid input\n");
+          break;
+      }
+      if (c != '\n' && c != '\t' && c != ' ')
+        printf("%s: ", name);
+  }
+}
+
+void calc_note_frqs(sample_t srate) {
   int i;
   for(i=0; i<128; i++)
-    note_frqs[i] = (2.0 * 440.0 / 32.0) * pow(2, (((jack_default_audio_sample_t)i - 9.0) / 12.0)) / srate;
+    note_frqs[i] = (TUNING / 16.0) * pow(2, (((sample_t)i - 9.0) / 12.0)) / srate;
 }
 
 int process(jack_nframes_t nframes, void *arg) {
   int i;
-  void* port_buf = jack_port_get_buffer(input_port, nframes);
-  jack_default_audio_sample_t *out = (jack_default_audio_sample_t *) jack_port_get_buffer (output_port, nframes);
+  void* port_buf = jack_port_get_buffer(in_p, nframes);
+  sample_t *out = (sample_t *) jack_port_get_buffer (out_p, nframes);
   jack_midi_event_t in_event;
   jack_nframes_t event_index = 0;
   jack_nframes_t event_count = jack_midi_get_event_count(port_buf);
@@ -170,7 +225,11 @@ int process(jack_nframes_t nframes, void *arg) {
         case 'c':
           for (k=1; k < fi; k++)
             x += pow(-1,k)/k * sin(2*M_PI*ramp*k); 
-          out[i] = note_on * max_amplitude * x;
+          out[i] = note_on * max_amplitude * x *2/M_PI;
+        case 'd':
+          for (k=1; k < fi; k++)
+            x += pow(-1,k)/k * sin(2*M_PI*ramp*(2*k+1))/(2*k+1)/(2*k+1); 
+          out[i] = note_on * max_amplitude * 8/M_PI/M_PI * 60 * x;
       }
     }
     else 
@@ -181,7 +240,7 @@ int process(jack_nframes_t nframes, void *arg) {
 
 int srate(jack_nframes_t nframes, void *arg) {
   printf("Sample Rate = %" PRIu32 "/sec\n", nframes);
-  calc_note_frqs((jack_default_audio_sample_t)nframes);
+  calc_note_frqs((sample_t)nframes);
   return 0;
 }
 
@@ -190,66 +249,36 @@ void jack_shutdown(void *arg) {
 }
 
 int main(int argc, char **argv) {
+
   jack_client_t *client;
-  char c;
-  char name[11];
+  char c, name[11];
 
   if (argc < 2) {
     printf("Type client name (max 10 char): ");
     scanf("%s", name); 
   }
-  else {
+  else 
     strcpy(name, argv[1]);
-  }
 
-  if ((client = jack_client_open (name, JackNullOption, NULL)) == 0) {
+  if (!(client = jack_client_open(name, JackNullOption, NULL))) {
     fprintf(stderr, "jack server not running?\n");
     return 1;
   }
   
-  calc_note_frqs(jack_get_sample_rate (client));
-  jack_set_process_callback (client, process, 0);
-  jack_set_sample_rate_callback (client, srate, 0);
-  jack_on_shutdown (client, jack_shutdown, 0);
+  calc_note_frqs(jack_get_sample_rate(client));
+  jack_set_process_callback(client, process, 0);
+  jack_set_sample_rate_callback(client, srate, 0);
+  jack_on_shutdown(client, jack_shutdown, 0);
 
-  input_port = jack_port_register (client, "midi_in", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
-  output_port = jack_port_register (client, "audio_out", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+  in_p = jack_port_register(client, "Midi IN", JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0);
+  out_p = jack_port_register(client, "Audio OUT", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
 
-  if (jack_activate (client)) {
+  if (jack_activate(client)) {
     fprintf(stderr, "cannot activate client");
     return 1;
   }
 
-  /* shell loop */
-  printf("Hi! if you need help, type h\n"
-         "To close the synth, type q or ^D\n%s: ", name);
-
-  while((c = getchar()) != 'q' && c != EOF) 
-  {
-      switch(c)
-      {
-        case 'A':
-          set_amplitude();
-          break;
-        case 'W':
-          set_waveform();
-          break;
-        case 'h':
-          print_help_message();
-          break;
-        case 'i':
-          set_fi();
-        case '\n':
-        case ' ':
-        case '\t':
-          break;
-        default:
-          printf("invalid input\n");
-          break;
-      }
-      if (c != '\n' && c != '\t' && c != ' ')
-        printf("%s: ", name);
-  }
+  shell_loop(name);
   jack_client_close(client);
   printf("Bye!\n");
   return 0;
