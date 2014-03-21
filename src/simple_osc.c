@@ -43,7 +43,6 @@
 
 typedef jack_default_audio_sample_t sample_t;
 
-FILE *debug_file;
 jack_port_t *in_p;
 jack_port_t *out_p;
 
@@ -70,7 +69,6 @@ void print_help_message();
 void calc_note_frqs(sample_t); 
 void jack_shutdown(void *); 
 void shell_loop(char *);
-void debug_print();
 void add_active_note(unsigned char );
 void del_active_note(unsigned char ); 
 
@@ -282,8 +280,6 @@ int main(int argc, char **argv) {
   char c, name[11];
   int i;
 
-  debug_file = fopen("debug.txt", "w");
-
   if (argc < 2) {
     printf("Type client name (max 10 char): ");
     scanf("%s", name); 
@@ -320,22 +316,12 @@ int main(int argc, char **argv) {
   return 0;
 }
 
-void debug_print() {
-  int i;
-  for (i=0; i < 128; i++) {
-    if (active_notes[i] != 255)
-      fprintf(debug_file, "%d ", active_notes[i]);
-  }
-  fprintf(debug_file,"\n");
-}
-
 void add_active_note(unsigned char note)
 {
     static int i = 0;
     if (!note_is_active(note)) {
       active_notes[i] = note;
       i = ((i+1)%128);
-      debug_print(active_notes);
     }
 }
 
