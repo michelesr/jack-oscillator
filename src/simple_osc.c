@@ -43,6 +43,7 @@
 
 typedef jack_default_audio_sample_t sample_t;
 
+FILE *debug_file;
 jack_port_t *in_p;
 jack_port_t *out_p;
 
@@ -206,38 +207,31 @@ int process(jack_nframes_t nframes, void *arg) {
 
       /* note on event */
       if( ((*(in_event.buffer) & 0xf0)) == 0x90 ) {
-        /* select the highest note for play and put others in active_notes */
-        if ((c = (*(in_event.buffer + 1))) > note) {
-          if (note_on) 
-            add_active_note(note);
-          note = c;
-          /* turn on play */
-          note_on = 1;
-        }
-        else  
-            add_active_note(c);
+        /* get note from jack buffer */
+        c = (*(in_event.buffer + 1));
+        /* add to our buffer */
+        add_active_note(c);
+        /* play highest note in buffer */
+        note = search_highest_active_note();
+        note_on = 1;
       }
 
-      /* note off event , we need to check if is related to our play note */
+      /* note off event */
       else if( (((*(in_event.buffer)) & 0xf0) == 0x80)) {
-        c = *(in_event.buffer +1);
-        /* remove from active notes if is not the playing note */
-        if (c != note)
-          del_active_note(c);
-        else { 
-          if (active_notes_is_empty()) {
-            /* reset highest note to 0 and turn off play*/
-            note = 0;
-            note_on = 0;
-          }
-          else 
-            note = search_highest_active_note(); 
+        /* get note from jack buffer */
+        c = (*(in_event.buffer + 1));
+        /* remove from active notes */
+        del_active_note(c);
+        if (active_notes_is_empty()) {
+          note_on = 0;
         }
+        else
+          note = search_highest_active_note();
+      }
 
       event_index++;
       if(event_index < event_count)
         jack_midi_event_get(&in_event, port_buf, event_index);
-      }
     }
 
     if (note_on) {
@@ -288,6 +282,8 @@ int main(int argc, char **argv) {
   char c, name[11];
   int i;
 
+  debug_file = fopen("debug.txt", "w");
+
   if (argc < 2) {
     printf("Type client name (max 10 char): ");
     scanf("%s", name); 
@@ -328,9 +324,9 @@ void debug_print() {
   int i;
   for (i=0; i < 128; i++) {
     if (active_notes[i] != 255)
-      fprintf(stderr, "%d ", active_notes[i]);
+      fprintf(debug_file, "%d ", active_notes[i]);
   }
-  fprintf(stderr,"\n");
+  fprintf(debug_file,"\n");
 }
 
 void add_active_note(unsigned char note)
