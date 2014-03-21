@@ -47,10 +47,10 @@ jack_port_t *in_p;
 jack_port_t *out_p;
 
 sample_t ramp = 0.0;
-sample_t note_on;
+sample_t note_on = 0;
 sample_t note_frqs[128];
 double max_amplitude = 0.5;
-unsigned char note = 0; 
+unsigned char note = 0, active_notes[128];
 char waveform = 'a';
 int fi = 20; /* fourier iterations */
 
@@ -59,12 +59,18 @@ int fi = 20; /* fourier iterations */
 int check_waveform(char);
 int process(jack_nframes_t, void*);
 int srate(jack_nframes_t, void*);
+int note_is_active(unsigned char);
+int search_active_note(unsigned char);
+int active_notes_is_empty();
+unsigned char search_highest_active_note();
 void set_waveform();
 void set_fi();
 void print_help_message();
 void calc_note_frqs(sample_t); 
 void jack_shutdown(void *); 
 void shell_loop(char *);
+void add_active_note(unsigned char );
+void del_active_note(unsigned char ); 
 
 /* function definition */
 
@@ -183,40 +189,49 @@ void calc_note_frqs(sample_t srate) {
 
 int process(jack_nframes_t nframes, void *arg) {
   int i;
+  static int j;
+  unsigned char c = 0;
   void* port_buf = jack_port_get_buffer(in_p, nframes);
   sample_t *out = (sample_t *) jack_port_get_buffer (out_p, nframes);
   jack_midi_event_t in_event;
   jack_nframes_t event_index = 0;
   jack_nframes_t event_count = jack_midi_get_event_count(port_buf);
   
-  /*if(event_count > 1)
-  {
-     printf(" midisine: have %d events\n", event_count); 
-    for(i=0; i<event_count; i++)
-    {
-      jack_midi_event_get(&in_event, port_buf, i);
-       printf("    event %d time is %d. 1st byte is 0x%x\n", i, in_event.time, *(in_event.buffer)); 
-    }
-    printf("1st byte of 1st event addr is %p\n", in_events[0].buffer);
-  } */ 
-
   jack_midi_event_get(&in_event, port_buf, 0);
   for(i=0; i<nframes; i++) {
+
+    /* inspect event if is in time (try without checking the time) */
     if((in_event.time == i) && (event_index < event_count)) {
+
+      /* note on event */
       if( ((*(in_event.buffer) & 0xf0)) == 0x90 ) {
-        /* note on */
-        note = *(in_event.buffer + 1);
+        /* get note from jack buffer */
+        c = (*(in_event.buffer + 1));
+        /* add to our buffer */
+        add_active_note(c);
+        /* play highest note in buffer */
+        note = search_highest_active_note();
         note_on = 1;
       }
-      else if( ((*(in_event.buffer)) & 0xf0) == 0x80 ) {
-        /* note off */
-        note = *(in_event.buffer + 1);
-        note_on = 0;
+
+      /* note off event */
+      else if( (((*(in_event.buffer)) & 0xf0) == 0x80)) {
+        /* get note from jack buffer */
+        c = (*(in_event.buffer + 1));
+        /* remove from active notes */
+        del_active_note(c);
+        if (active_notes_is_empty()) {
+          note_on = 0;
+        }
+        else
+          note = search_highest_active_note();
       }
+
       event_index++;
       if(event_index < event_count)
         jack_midi_event_get(&in_event, port_buf, event_index);
     }
+
     if (note_on) {
       ramp += note_frqs[note];
       ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
@@ -263,6 +278,7 @@ int main(int argc, char **argv) {
 
   jack_client_t *client;
   char c, name[11];
+  int i;
 
   if (argc < 2) {
     printf("Type client name (max 10 char): ");
@@ -276,6 +292,11 @@ int main(int argc, char **argv) {
     return 1;
   }
   
+  /* initialize array */
+  for(i = 0; i <= 128; i++) {
+    active_notes[i] = 255;
+  }
+
   calc_note_frqs(jack_get_sample_rate(client));
   jack_set_process_callback(client, process, 0);
   jack_set_sample_rate_callback(client, srate, 0);
@@ -293,4 +314,44 @@ int main(int argc, char **argv) {
   jack_client_close(client);
   printf("Bye!\n");
   return 0;
+}
+
+void add_active_note(unsigned char note)
+{
+    static int i = 0;
+    if (!note_is_active(note)) {
+      active_notes[i] = note;
+      i = ((i+1)%128);
+    }
+}
+
+void del_active_note(unsigned char note) {
+  active_notes[search_active_note(note)] = 255; 
+}
+
+int note_is_active(unsigned char note) {
+  return(search_active_note(note) < 128);
+}
+
+int search_active_note(unsigned char note) {
+  int i;
+  for (i=0; (i < 128) && (active_notes[i] != note); i++);
+  return (i);
+}
+
+unsigned char search_highest_active_note() {
+  char c=-1;
+  int i;
+  for (i=0; i < 128; i++) {
+    if ((c < active_notes[i]) && (active_notes[i] != 255))
+      c = active_notes[i];
+  }
+  if (c == -1)
+    return ((unsigned char) 255);
+  else 
+    return ((unsigned char) c);
+}
+
+int active_notes_is_empty() {
+  return (search_highest_active_note() == 255);
 }
