@@ -38,6 +38,7 @@ jack_port_t *out_p;
 
 sample_t ramp = 0.0;
 sample_t note_on = 0;
+sample_t note_frqs[128];
 unsigned char note = 0, active_notes[128];
 
 /* function declaration */
@@ -65,15 +66,6 @@ int process(jack_nframes_t nframes, void *arg) {
   jack_nframes_t event_count = jack_midi_get_event_count(port_buf);
   
   jack_midi_event_get(&in_event, port_buf, 0);
-
-  /* DEBUG */
-  {
-    int y;
-    for (y=0;y < 128;y++) {
-      if (active_notes[y] != 255)
-        fprintf(stderr,"%d ", y);
-    }
-  }
 
   for(i=0; i<nframes; i++) {
 
@@ -137,7 +129,7 @@ int process(jack_nframes_t nframes, void *arg) {
 
 int srate(jack_nframes_t nframes, void *arg) {
   printf("Sample Rate = %" PRIu32 "/sec\n", nframes);
-  calc_note_frqs((sample_t)nframes);
+  calc_note_frqs(note_frqs, (sample_t)nframes);
   return 0;
 }
 
@@ -168,7 +160,7 @@ int main(int argc, char **argv) {
     active_notes[i] = 255;
   }
 
-  calc_note_frqs(jack_get_sample_rate(client));
+  calc_note_frqs(note_frqs, jack_get_sample_rate(client));
   jack_set_process_callback(client, process, 0);
   jack_set_sample_rate_callback(client, srate, 0);
   jack_on_shutdown(client, jack_shutdown, 0);
