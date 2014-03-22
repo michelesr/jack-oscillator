@@ -65,6 +65,16 @@ int process(jack_nframes_t nframes, void *arg) {
   jack_nframes_t event_count = jack_midi_get_event_count(port_buf);
   
   jack_midi_event_get(&in_event, port_buf, 0);
+
+  /* DEBUG */
+  {
+    int y;
+    for (y=0;y < 128;y++) {
+      if (active_notes[y] != 255)
+        fprintf(stderr,"%d ", y);
+    }
+  }
+
   for(i=0; i<nframes; i++) {
 
     /* inspect event if is in time (try without checking the time) */
