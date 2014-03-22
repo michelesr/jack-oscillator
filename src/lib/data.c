@@ -1,4 +1,4 @@
-/*  synth.h header of wave synthesizer
+/*  data.c implementation of types and data
  
     Copyright (C) 2004 Ian Esten
     Copyright (C) 2014 Michele Sorcinelli 
@@ -18,10 +18,11 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "data.h"
+#include <jack/jack.h>
 
-extern void calc_note_frqs(sample_t *, sample_t); 
-extern sample_t sine_w(sample_t);
-extern sample_t square_w(sample_t);
-extern sample_t sawtooth_w(sample_t);
-extern sample_t triangle_w(sample_t);
+typedef jack_default_audio_sample_t sample_t;
+
+/* global vars */
+sample_t max_amplitude = 0.5; 
+int fi = 20; /* number of harmonics */
+char waveform = 'a';

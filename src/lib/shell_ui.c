@@ -25,11 +25,6 @@
 /* number of implemented waveforms */
 #define FORMS 4 
 
-/* global vars */
-sample_t max_amplitude = 0.5; 
-int fi = 20; /* number of harmonics */
-char waveform = 'a';
-
 /* function declaration */
 
 int check_waveform(char);
@@ -133,7 +128,7 @@ void set_fi() {
 
 void set_amplitude() {
   printf("Set new max amplitude: ");
-  scanf("%lf", &max_amplitude);
+  scanf("%f", &max_amplitude);
   printf("New amplitude = %.2lf\n",  max_amplitude);
   if (max_amplitude < 0)
     printf("A < 0 => Inverted Phase\n"); 

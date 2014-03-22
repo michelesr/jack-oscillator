@@ -20,7 +20,7 @@
 
 #include <math.h>
 #include <jack/jack.h>
-#include "shell_ui.h"
+#include "data.h"
 
 /* frequence of A4 */
 #define TUNING 440.0 
