@@ -20,13 +20,17 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "synth.h"
 
 /* number of implemented waveforms */
 #define FORMS 4 
 
-double max_amplitude = 0.5; 
-int fi = 20;
+/* global vars */
+sample_t max_amplitude = 0.5; 
+int fi = 20; /* number of harmonics */
 char waveform = 'a';
+
+/* function declaration */
 
 int check_waveform(char);
 void shell_loop(char *);
@@ -34,6 +38,8 @@ void set_waveform();
 void set_fi();
 void print_help_message();
 void set_amplitude();
+
+/* function definition */
 
 int check_waveform(char c) {
   char valid_forms[FORMS];

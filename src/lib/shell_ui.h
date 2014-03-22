@@ -18,7 +18,9 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-extern double max_amplitude;
+#include "synth.h"
+
+extern sample_t max_amplitude;
 extern int fi;
 extern char waveform;
 extern shell_loop(char *);

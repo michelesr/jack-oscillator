@@ -18,6 +18,7 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+/* standard libs */
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
@@ -25,9 +26,11 @@
 #include <string.h>
 #include <math.h>
 
+/* jack libs */
 #include <jack/jack.h>
 #include <jack/midiport.h>
 
+/* program libs */
 #include "lib/shell_ui.h"
 #include "lib/synth.h"
 

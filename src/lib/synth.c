@@ -33,11 +33,14 @@
 
 typedef jack_default_audio_sample_t sample_t;
 
+/* function declaration */
 void calc_note_frqs(sample_t *, sample_t); 
 sample_t sine_w(sample_t);
 sample_t square_w(sample_t);
 sample_t sawtooth_w(sample_t);
 sample_t triangle_w(sample_t);
+
+/* function definition */
 
 sample_t sine_w(sample_t ramp) {
   return (max_amplitude * GAIN_SIN * sin(2*M_PI*ramp));
