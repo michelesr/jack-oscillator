@@ -43,7 +43,7 @@ sample_t triangle_w(sample_t);
 /* function definition */
 
 sample_t sine_w(sample_t ramp) {
-  return (max_amplitude * GAIN_SIN * sin(2*M_PI*ramp));
+  return (volume * max_amplitude * GAIN_SIN * sin(2*M_PI*ramp));
 }
 
 sample_t square_w(sample_t ramp) {
@@ -53,7 +53,7 @@ sample_t square_w(sample_t ramp) {
   for (k=1; k <= fi; k++) 
     x += (sin(2*M_PI*ramp*(2*k -1))/(2*k -1));
 
-  return(max_amplitude * GAIN_SQR * 4*x/M_PI);
+  return(volume * max_amplitude * GAIN_SQR * 4*x/M_PI);
 }
 
 sample_t sawtooth_w(sample_t ramp) {
@@ -63,7 +63,7 @@ sample_t sawtooth_w(sample_t ramp) {
   for (k=1; k <= fi; k++)
     x += pow(-1,k)/k * sin(2*M_PI*ramp*k); 
 
-  return(GAIN_SAW * max_amplitude * x *(-2)/M_PI);
+  return(GAIN_SAW * volume * max_amplitude * x *(-2)/M_PI);
 }
 
 sample_t triangle_w(sample_t ramp) {
@@ -73,7 +73,7 @@ sample_t triangle_w(sample_t ramp) {
   for (k=0; k < fi; k++)
     x += pow(-1,k) * sin(2*M_PI*ramp*(2*k+1))/(2*k+1)/(2*k+1); 
 
-  return(GAIN_TRI * max_amplitude * x * 8 / M_PI / M_PI);
+  return(GAIN_TRI * volume * max_amplitude * x * 8 / M_PI / M_PI);
 }
 
 void calc_note_frqs(sample_t *note_frqs, sample_t srate) {
