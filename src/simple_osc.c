@@ -33,6 +33,7 @@
 /* program libs */
 #include "lib/shell_ui.h"
 #include "lib/synth.h"
+#include "lib/controller.h"
 
 /* global vars */
 
@@ -71,7 +72,7 @@ int process(jack_nframes_t nframes, void *arg) {
   jack_midi_event_get(&in_event, port_buf, 0);
 
   for(i=0; i<nframes; i++) {
-
+    
     /* check channel */
     if ((event_index < event_count) && 
         ((*(in_event.buffer) & 0x0f) == (channel-1)))  {
@@ -104,6 +105,15 @@ int process(jack_nframes_t nframes, void *arg) {
           else
             note = search_highest_active_note();
         }
+
+        /* program change */
+        else if( (((*(in_event.buffer)) & 0xf0) == 0xc0)) 
+          handle_midi_program_change(in_event);
+
+        /* control event */
+        else if( (((*(in_event.buffer)) & 0xf0) == 0xb0)) 
+          handle_midi_control(in_event);
+
       }
     }
 

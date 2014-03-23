@@ -1,6 +1,6 @@
-../bin/simple_osc: ../bin/obj/data.o ../bin/obj/shell_ui.o ../bin/obj/synth.o simple_osc.c Makefile
+../bin/simple_osc: ../bin/obj/data.o ../bin/obj/shell_ui.o ../bin/obj/synth.o ../bin/obj/controller.o simple_osc.c Makefile
 	mkdir -p ../bin
-	gcc simple_osc.c ../bin/obj/shell_ui.o ../bin/obj/synth.o ../bin/obj/data.o  -o ../bin/simple_osc -ljack -lpthread -ldl -lrt -lm -O2
+	gcc simple_osc.c ../bin/obj/shell_ui.o ../bin/obj/synth.o ../bin/obj/data.o ../bin/obj/controller.o -o ../bin/simple_osc -ljack -lpthread -ldl -lrt -lm -O2
 
 ../bin/obj/data.o: lib/data.c Makefile
 	mkdir -p ../bin/obj/
@@ -14,9 +14,13 @@
 	mkdir -p ../bin/obj/
 	gcc lib/synth.c -o ../bin/obj/synth.o -O2 -c -ljack -lpthread -ldl -lrt -lm
 
-debug: simple_osc.c lib/data.c lib/shell_ui.c lib/synth.c Makefile 
+../bin/obj/controller.o: lib/controller.c Makefile
+	mkdir -p ../bin/obj/
+	gcc lib/controller.c -o ../bin/obj/controller.o -O2 -c -ljack -lpthread -ldl -lrt -lm
+
+debug: simple_osc.c lib/data.c lib/shell_ui.c lib/synth.c lib/controller.c Makefile 
 	mkdir -p ../bin
-	gcc simple_osc.c lib/shell_ui.c lib/synth.c lib/data.c  -o ../bin/simple_osc -ljack -lpthread -ldl -lrt -lm -g
+	gcc simple_osc.c lib/shell_ui.c lib/synth.c lib/data.c lib/controller.c -o ../bin/simple_osc -ljack -lpthread -ldl -lrt -lm -g
 
 clean:
 	rm -fr ../bin
