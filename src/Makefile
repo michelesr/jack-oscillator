@@ -16,7 +16,7 @@
 
 debug: simple_osc.c lib/data.c lib/shell_ui.c lib/synth.c Makefile 
 	mkdir -p ../bin
-	gcc simple_osc.c lib/shell_ui.c lib/synth.c  -o ../bin/simple_osc -ljack -lpthread -ldl -lrt -lm -g
+	gcc simple_osc.c lib/shell_ui.c lib/synth.c lib/data.c  -o ../bin/simple_osc -ljack -lpthread -ldl -lrt -lm -g
 
 clean:
 	rm -fr ../bin

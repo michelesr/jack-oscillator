@@ -33,6 +33,7 @@ void set_waveform();
 void set_fi();
 void print_help_message();
 void set_amplitude();
+void set_channel();
 
 /* function definition */
 
@@ -43,6 +44,17 @@ int check_waveform(char c) {
     valid_forms[i] = (i + 'a');
   for (i=0; i < FORMS && c != valid_forms[i]; i++); 
   return (i < FORMS); 
+}
+
+void set_channel() {
+  unsigned short c;
+  printf("select channel from 1 to 16: ");
+  do {
+    scanf("%d", &c);
+  }
+  while (c < 0 || c > 16);
+  channel = c;
+  printf("Changed midi channel to %d\n", channel);
 }
 
 void set_waveform() {
@@ -100,6 +112,9 @@ void shell_loop(char *name) {
         case 'W':
           set_waveform();
           break;
+        case 'c':
+          set_channel();
+          break;
         case 'h':
           print_help_message();
           break;
@@ -136,6 +151,7 @@ void set_amplitude() {
 
 void print_help_message() {
   printf("h -> help\n"
+         "c -> change channel\n"
          "W -> change waveform\n" 
          "A -> set amplitude (volume)\n"
          "i -> set number of fourier iterations\n"

@@ -72,37 +72,45 @@ int process(jack_nframes_t nframes, void *arg) {
 
   for(i=0; i<nframes; i++) {
 
-    /* inspect event if is in time (try without checking the time) */
-    if((in_event.time == i) && (event_index < event_count)) {
+    /* check channel */
+    if ((event_index < event_count) && 
+        ((*(in_event.buffer) & 0x0f) == (channel-1)))  {
+      /* inspect event if is in time (try without checking the time) */
+      if(/*(in_event.time == i) &&*/ (event_index < event_count)) {
 
-      /* note on event */
-      if( ((*(in_event.buffer) & 0xf0)) == 0x90 ) {
-        /* get note from jack buffer */
-        c = (*(in_event.buffer + 1));
-        /* add to our buffer */
-        add_active_note(c);
-        /* play highest note in buffer */
-        note = search_highest_active_note();
-        note_on = 1;
-      }
+        /* note on event */
+        if( ((*(in_event.buffer) & 0xf0)) == 0x90 ) {
 
-      /* note off event */
-      else if( (((*(in_event.buffer)) & 0xf0) == 0x80)) {
-        /* get note from jack buffer */
-        c = (*(in_event.buffer + 1));
-        /* remove from active notes */
-        del_active_note(c);
-        if (active_notes_is_empty()) {
-          note_on = 0;
-        }
-        else
+          /*printf("channel = %d\n", ((*(in_event.buffer) & 0x0f) + 1));*/
+
+          /* get note from jack buffer */
+          c = (*(in_event.buffer + 1));
+          /* add to our buffer */
+          add_active_note(c);
+          /* play highest note in buffer */
           note = search_highest_active_note();
+          note_on = 1;
+        }
+
+        /* note off event */
+        else if( (((*(in_event.buffer)) & 0xf0) == 0x80)) {
+          /* get note from jack buffer */
+          c = (*(in_event.buffer + 1));
+          /* remove from active notes */
+          del_active_note(c);
+          if (active_notes_is_empty()) {
+            note_on = 0;
+          }
+          else
+            note = search_highest_active_note();
+        }
       }
+    }
 
       event_index++;
       if(event_index < event_count)
         jack_midi_event_get(&in_event, port_buf, event_index);
-    }
+
 
     if (note_on) {
       ramp += note_frqs[note];
