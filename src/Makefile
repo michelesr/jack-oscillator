@@ -23,4 +23,7 @@ debug: simple_osc.c lib/data.c lib/shell_ui.c lib/synth.c lib/controller.c Makef
 	gcc simple_osc.c lib/shell_ui.c lib/synth.c lib/data.c lib/controller.c -o ../bin/simple_osc -ljack -lpthread -ldl -lrt -lm -g
 
 clean:
+	rm -fr ../bin/obj
+
+clean-all:
 	rm -fr ../bin
