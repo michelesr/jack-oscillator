@@ -20,6 +20,7 @@ If your midi controller work with ALSA sequencer instead of JACK midi driver, no
 About the shell... the client needs a name, you can provide in command lineor the client will ask you on start... after that, a simple shell will appear. 
 
 h -> help
+c -> change channel 
 W -> change waveform
 A -> set amplitude
 i -> set number of fourier iterations
