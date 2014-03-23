@@ -79,5 +79,5 @@ sample_t triangle_w(sample_t ramp) {
 void calc_note_frqs(sample_t *note_frqs, sample_t srate) {
   int i;
   for(i=0; i<128; i++)
-    note_frqs[i] = (TUNING / 16.0) * pow(2, (((sample_t)i - 9.0) / 12.0)) / srate;
+    note_frqs[i] = (TUNING / 32.0) * pow(2, (((sample_t)i - 9.0) / 12.0)) / srate;
 }
