@@ -177,7 +177,7 @@ void shell_loop(char *name) {
 
 void set_fi() {
   do { 
-    printf("N° of fourier iterations: ");
+    printf("N° of harmonics: ");
     scanf("%d", &fi);
   }  
   while (fi < 1); 
@@ -195,7 +195,11 @@ void print_help_message() {
   printf("h -> help\n"
          "c -> change channel\n"
          "W -> change waveform\n" 
+         "a -> set attack time and peak\n"
+         "d -> set decay time\n"
+         "s -> set sustain\n"
+         "r -> set release time\n"
          "A -> set amplitude (volume)\n"
-         "i -> set number of fourier iterations\n"
-         "The number of fourier iterations is related to the precision of the waveform... more is higher, and more cpu power is needed... you can set at around 20 or higher if you want (will your ear notice the difference?).\n"); 
+         "i -> set number of harmonics\n"
+         "The number of harmonics is related to the precision of the waveform... more is higher, and more cpu power is needed... you can set at around 20 or higher if you want (will your ear notice the difference?).\n"); 
 }
