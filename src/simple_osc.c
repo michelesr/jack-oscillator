@@ -39,6 +39,7 @@
 
 jack_port_t *in_p;
 jack_port_t *out_p;
+jack_nframes_t sr;
 
 sample_t ramp = 0.0;
 sample_t note_on = 0;
@@ -61,14 +62,16 @@ void del_active_note(unsigned char );
 
 int process(jack_nframes_t nframes, void *arg) {
   int i;
-  static int j;
   unsigned char c = 0;
+  static sample_t attack = 0, decay = -1;
   void* port_buf = jack_port_get_buffer(in_p, nframes);
   sample_t *out = (sample_t *) jack_port_get_buffer (out_p, nframes);
   jack_midi_event_t in_event;
   jack_nframes_t event_index = 0;
   jack_nframes_t event_count = jack_midi_get_event_count(port_buf);
   
+  if (decay < 0) 
+    decay = attack_amplitude; 
   jack_midi_event_get(&in_event, port_buf, 0);
 
   for(i=0; i<nframes; i++) {
@@ -81,8 +84,6 @@ int process(jack_nframes_t nframes, void *arg) {
 
         /* note on event */
         if( ((*(in_event.buffer) & 0xf0)) == 0x90 ) {
-
-          /*printf("channel = %d\n", ((*(in_event.buffer) & 0x0f) + 1));*/
 
           /* get note from jack buffer */
           c = (*(in_event.buffer + 1));
@@ -101,6 +102,8 @@ int process(jack_nframes_t nframes, void *arg) {
           del_active_note(c);
           if (active_notes_is_empty()) {
             note_on = 0;
+            attack = 0;
+            decay = attack_amplitude;
           }
           else
             note = search_highest_active_note();
@@ -127,18 +130,22 @@ int process(jack_nframes_t nframes, void *arg) {
       ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
       double x = 0;
       int k;
+      if (attack_time > 0 && attack < attack_amplitude) 
+        attack += (attack_amplitude/(sr*attack_time/1000));
+      else if (decay_time > 0 && decay > (sustain/attack_amplitude)) 
+         decay -= (sustain/(sr*decay_time/1000));
       switch(waveform) {
         case 'a':
-          out[i] = note_on * sine_w(ramp);
+          out[i] = note_on * attack * decay * sine_w(ramp);
           break;
         case 'b':
-          out[i] = note_on * square_w(ramp);
+          out[i] = note_on * attack * decay * square_w(ramp);
           break;
         case 'c':
-          out[i] = note_on * sawtooth_w(ramp); 
+          out[i] = note_on * attack * decay * sawtooth_w(ramp); 
           break;
         case 'd':
-          out[i] = note_on * triangle_w(ramp);
+          out[i] = note_on * attack * decay * triangle_w(ramp);
           break;
       }
     }
@@ -150,6 +157,7 @@ int process(jack_nframes_t nframes, void *arg) {
 
 int srate(jack_nframes_t nframes, void *arg) {
   printf("Sample Rate = %" PRIu32 "/sec\n", nframes);
+  sr = nframes;
   calc_note_frqs(note_frqs, (sample_t)nframes);
   return 0;
 }
@@ -180,8 +188,6 @@ int main(int argc, char **argv) {
   for(i = 0; i <= 128; i++) {
     active_notes[i] = 255;
   }
-
-  calc_note_frqs(note_frqs, jack_get_sample_rate(client));
   jack_set_process_callback(client, process, 0);
   jack_set_sample_rate_callback(client, srate, 0);
   jack_on_shutdown(client, jack_shutdown, 0);

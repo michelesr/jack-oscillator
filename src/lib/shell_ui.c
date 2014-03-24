@@ -34,6 +34,9 @@ void set_fi();
 void print_help_message();
 void set_amplitude();
 void set_channel();
+void set_attack();
+void set_decay();
+void set_sustain();
 
 /* function definition */
 
@@ -55,6 +58,26 @@ void set_channel() {
   while (c < 0 || c > 16);
   channel = c;
   printf("Changed midi channel to %d\n", channel);
+}
+
+void set_attack() {
+  printf("attack time (ms): ");
+  scanf("%d", &attack_time);
+  printf("attack amplitude: ");
+  scanf("%f", &attack_amplitude);
+  printf("attack: %d ms, %f A\n", attack_time, attack_amplitude);
+}
+
+void set_decay() {
+  printf("decay time(ms): ");
+  scanf("%d", &decay_time);
+  printf("decay time = %d ms\n", decay_time);
+}
+
+void set_sustain() {
+  printf("sustain: ");
+  scanf("%f", &sustain);
+  printf("sustain = %f\n", sustain);
 }
 
 void set_waveform() {
@@ -108,6 +131,15 @@ void shell_loop(char *name) {
       {
         case 'A':
           set_amplitude();
+          break;
+        case 'a':
+          set_attack();
+          break;
+        case 'd':
+          set_decay();
+          break;
+        case 's':
+          set_sustain();
           break;
         case 'W':
           set_waveform();
