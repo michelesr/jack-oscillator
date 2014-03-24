@@ -44,6 +44,7 @@ jack_nframes_t sr;
 sample_t ramp = 0.0;
 sample_t note_on = 0;
 sample_t note_frqs[128];
+sample_t attack = 0, decay, release = 0;
 unsigned char note = 0, active_notes[128];
 
 /* function declaration */
@@ -61,98 +62,116 @@ void del_active_note(unsigned char );
 /* function definition */
 
 int process(jack_nframes_t nframes, void *arg) {
-  int i;
-  unsigned char c = 0;
-  static sample_t attack = 0, decay = -1;
-  void* port_buf = jack_port_get_buffer(in_p, nframes);
-  sample_t *out = (sample_t *) jack_port_get_buffer (out_p, nframes);
-  jack_midi_event_t in_event;
-  jack_nframes_t event_index = 0;
-  jack_nframes_t event_count = jack_midi_get_event_count(port_buf);
+int i;
+unsigned char c = 0;
+static unsigned char n = 0;
+void* port_buf = jack_port_get_buffer(in_p, nframes);
+sample_t *out = (sample_t *) jack_port_get_buffer (out_p, nframes);
+jack_midi_event_t in_event;
+jack_nframes_t event_index = 0;
+jack_nframes_t event_count = jack_midi_get_event_count(port_buf);
+
+jack_midi_event_get(&in_event, port_buf, 0);
+
+
+for(i=0; i<nframes; i++) {
   
-  if (decay < 0) 
-    decay = attack_amplitude; 
-  jack_midi_event_get(&in_event, port_buf, 0);
+  /* check channel */
+  if ((event_index < event_count) && 
+      ((*(in_event.buffer) & 0x0f) == (channel-1)))  {
+    /* inspect event if is in time (try without checking the time) */
+    if(/*(in_event.time == i) &&*/ (event_index < event_count)) {
 
-  for(i=0; i<nframes; i++) {
-    
-    /* check channel */
-    if ((event_index < event_count) && 
-        ((*(in_event.buffer) & 0x0f) == (channel-1)))  {
-      /* inspect event if is in time (try without checking the time) */
-      if(/*(in_event.time == i) &&*/ (event_index < event_count)) {
+      /* note on event */
+      if( ((*(in_event.buffer) & 0xf0)) == 0x90 ) {
 
-        /* note on event */
-        if( ((*(in_event.buffer) & 0xf0)) == 0x90 ) {
+        /* get note from jack buffer */
+        c = (*(in_event.buffer + 1));
+        /* add to our buffer */
+        add_active_note(c);
+        /* play highest note in buffer */
+        note = search_highest_active_note();
+        note_on = 1;
+      }
 
-          /* get note from jack buffer */
-          c = (*(in_event.buffer + 1));
-          /* add to our buffer */
-          add_active_note(c);
-          /* play highest note in buffer */
+      /* note off event */
+      else if( (((*(in_event.buffer)) & 0xf0) == 0x80)) {
+        /* get note from jack buffer */
+        c = (*(in_event.buffer + 1));
+        /* remove from active notes */
+        del_active_note(c);
+        if (active_notes_is_empty()) {
+          note_on = 0;
+          attack = 0;
+          decay = attack_amplitude;
+          release = sustain;
+          n = c;
+        }
+        else
           note = search_highest_active_note();
-          note_on = 1;
-        }
-
-        /* note off event */
-        else if( (((*(in_event.buffer)) & 0xf0) == 0x80)) {
-          /* get note from jack buffer */
-          c = (*(in_event.buffer + 1));
-          /* remove from active notes */
-          del_active_note(c);
-          if (active_notes_is_empty()) {
-            note_on = 0;
-            attack = 0;
-            decay = attack_amplitude;
-          }
-          else
-            note = search_highest_active_note();
-        }
-
-        /* program change */
-        else if( (((*(in_event.buffer)) & 0xf0) == 0xc0)) 
-          handle_midi_program_change(in_event);
-
-        /* control event */
-        else if( (((*(in_event.buffer)) & 0xf0) == 0xb0)) 
-          handle_midi_control(in_event);
-
       }
+
+      /* program change */
+      else if( (((*(in_event.buffer)) & 0xf0) == 0xc0)) 
+        handle_midi_program_change(in_event);
+
+      /* control event */
+      else if( (((*(in_event.buffer)) & 0xf0) == 0xb0)) 
+        handle_midi_control(in_event);
+
     }
-
-      event_index++;
-      if(event_index < event_count)
-        jack_midi_event_get(&in_event, port_buf, event_index);
-
-
-    if (note_on) {
-      ramp += note_frqs[note];
-      ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
-      double x = 0;
-      int k;
-      if (attack_time > 0 && attack < attack_amplitude) 
-        attack += (attack_amplitude/(sr*attack_time/1000));
-      else if (decay_time > 0 && decay > (sustain/attack_amplitude)) 
-         decay -= (sustain/(sr*decay_time/1000));
-      switch(waveform) {
-        case 'a':
-          out[i] = note_on * attack * decay * sine_w(ramp);
-          break;
-        case 'b':
-          out[i] = note_on * attack * decay * square_w(ramp);
-          break;
-        case 'c':
-          out[i] = note_on * attack * decay * sawtooth_w(ramp); 
-          break;
-        case 'd':
-          out[i] = note_on * attack * decay * triangle_w(ramp);
-          break;
-      }
-    }
-    else 
-      out[i] = note_on;
   }
-  return 0;      
+
+    event_index++;
+    if(event_index < event_count)
+      jack_midi_event_get(&in_event, port_buf, event_index);
+
+
+  if (note_on) {
+    ramp += note_frqs[note];
+    ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
+    if (attack_time > 0 && attack < attack_amplitude) 
+      attack += (attack_amplitude/(sr*attack_time/1000));
+    else if (decay_time > 0 && decay > (sustain/attack_amplitude)) 
+      decay -= (sustain/(sr*decay_time/1000));
+    switch(waveform) {
+      case 'a':
+        out[i] = attack * decay * sine_w(ramp);
+        break;
+      case 'b':
+        out[i] = attack * decay * square_w(ramp);
+        break;
+      case 'c':
+        out[i] = attack * decay * sawtooth_w(ramp); 
+        break;
+      case 'd':
+        out[i] = attack * decay * triangle_w(ramp);
+        break;
+    }
+  }
+  else if (release > 0) {
+    ramp += note_frqs[n];
+    ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
+    release -= (sustain/(sr*release_time/1000)); 
+    switch(waveform) {
+      case 'a':
+        out[i] = release * sine_w(ramp);
+        break;
+      case 'b':
+        out[i] = release * square_w(ramp);
+        break;
+      case 'c':
+        out[i] = release * sawtooth_w(ramp); 
+        break;
+      case 'd':
+        out[i] = release * triangle_w(ramp);
+        break;
+    }
+  }
+  else 
+    out[i] = note_on;
+}
+return 0;      
 }
 
 int srate(jack_nframes_t nframes, void *arg) {
@@ -183,11 +202,14 @@ int main(int argc, char **argv) {
     fprintf(stderr, "jack server not running?\n");
     return 1;
   }
-  
+
   /* initialize array */
   for(i = 0; i <= 128; i++) {
     active_notes[i] = 255;
   }
+
+  decay = attack_amplitude; 
+
   jack_set_process_callback(client, process, 0);
   jack_set_sample_rate_callback(client, srate, 0);
   jack_on_shutdown(client, jack_shutdown, 0);

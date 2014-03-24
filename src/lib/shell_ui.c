@@ -37,6 +37,7 @@ void set_channel();
 void set_attack();
 void set_decay();
 void set_sustain();
+void set_relase();
 
 /* function definition */
 
@@ -78,6 +79,12 @@ void set_sustain() {
   printf("sustain: ");
   scanf("%f", &sustain);
   printf("sustain = %f\n", sustain);
+}
+
+void set_release() {
+  printf("release time(ms): ");
+  scanf("%d", &release_time);
+  printf("release time = %d ms\n", release_time);
 }
 
 void set_waveform() {
@@ -140,6 +147,9 @@ void shell_loop(char *name) {
           break;
         case 's':
           set_sustain();
+          break;
+        case 'r':
+          set_release();
           break;
         case 'W':
           set_waveform();

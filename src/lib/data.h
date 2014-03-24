@@ -24,5 +24,5 @@ typedef jack_default_audio_sample_t sample_t;
 
 extern sample_t max_amplitude, volume, attack_amplitude, sustain;
 extern unsigned short channel;
-extern int fi, attack_time, decay_time;
+extern int fi, attack_time, decay_time, release_time;
 extern char waveform;
