@@ -34,6 +34,10 @@ void set_fi();
 void print_help_message();
 void set_amplitude();
 void set_channel();
+void set_attack();
+void set_decay();
+void set_sustain();
+void set_relase();
 
 /* function definition */
 
@@ -55,6 +59,32 @@ void set_channel() {
   while (c < 0 || c > 16);
   channel = c;
   printf("Changed midi channel to %d\n", channel);
+}
+
+void set_attack() {
+  printf("attack time (ms): ");
+  scanf("%d", &attack_time);
+  printf("attack amplitude: ");
+  scanf("%f", &attack_amplitude);
+  printf("attack: %d ms, %f A\n", attack_time, attack_amplitude);
+}
+
+void set_decay() {
+  printf("decay time(ms): ");
+  scanf("%d", &decay_time);
+  printf("decay time = %d ms\n", decay_time);
+}
+
+void set_sustain() {
+  printf("sustain: ");
+  scanf("%f", &sustain);
+  printf("sustain = %f\n", sustain);
+}
+
+void set_release() {
+  printf("release time(ms): ");
+  scanf("%d", &release_time);
+  printf("release time = %d ms\n", release_time);
 }
 
 void set_waveform() {
@@ -109,6 +139,18 @@ void shell_loop(char *name) {
         case 'A':
           set_amplitude();
           break;
+        case 'a':
+          set_attack();
+          break;
+        case 'd':
+          set_decay();
+          break;
+        case 's':
+          set_sustain();
+          break;
+        case 'r':
+          set_release();
+          break;
         case 'W':
           set_waveform();
           break;
@@ -135,7 +177,7 @@ void shell_loop(char *name) {
 
 void set_fi() {
   do { 
-    printf("N° of fourier iterations: ");
+    printf("N° of harmonics: ");
     scanf("%d", &fi);
   }  
   while (fi < 1); 
@@ -153,7 +195,11 @@ void print_help_message() {
   printf("h -> help\n"
          "c -> change channel\n"
          "W -> change waveform\n" 
+         "a -> set attack time and peak\n"
+         "d -> set decay time\n"
+         "s -> set sustain\n"
+         "r -> set release time\n"
          "A -> set amplitude (volume)\n"
-         "i -> set number of fourier iterations\n"
-         "The number of fourier iterations is related to the precision of the waveform... more is higher, and more cpu power is needed... you can set at around 20 or higher if you want (will your ear notice the difference?).\n"); 
+         "i -> set number of harmonics\n"
+         "The number of harmonics is related to the precision of the waveform... more is higher, and more cpu power is needed... you can set at around 20 or higher if you want (will your ear notice the difference?).\n"); 
 }

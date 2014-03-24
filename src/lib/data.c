@@ -23,7 +23,8 @@
 typedef jack_default_audio_sample_t sample_t;
 
 /* global vars */
-sample_t max_amplitude = 0.5, volume = 1;
+sample_t max_amplitude = 0.5, volume = 1, attack_amplitude = 1, sustain = 1;
 int fi = 20; /* number of harmonics */
+int attack_time = 1, decay_time = 1, release_time = 1;
 unsigned short channel = 1;
 char waveform = 'a';
