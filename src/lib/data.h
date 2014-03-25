@@ -19,9 +19,11 @@
 */
 
 #include <jack/jack.h>
+#define false 0
+#define true 1
 
 typedef jack_default_audio_sample_t sample_t;
-typedef enum {false, true} bool_t;
+typedef short int bool_t;
 
 extern sample_t max_amplitude, volume, attack_amplitude, sustain;
 extern unsigned short channel;

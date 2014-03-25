@@ -21,12 +21,15 @@
 #include <jack/jack.h>
 #include <string.h> 
 #include <stdio.h>
+#include "data.h"
+#define false 0 
+#define true 1
 
 /* number of implemented waveforms */
 #define FORMS 4 
 
 typedef jack_default_audio_sample_t sample_t;
-typedef enum {false, true} bool_t;
+typedef short int bool_t;
 
 /* global vars */
 sample_t max_amplitude = 0.5, volume = 1, attack_amplitude = 1, sustain = 1;
