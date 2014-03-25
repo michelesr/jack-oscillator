@@ -21,74 +21,76 @@
 #include <stdio.h>
 #include <string.h>
 #include "synth.h"
-
-/* number of implemented waveforms */
-#define FORMS 4 
+#include "data.h" 
 
 /* function declaration */
 
-int check_waveform(char);
 void shell_loop(char *);
-void set_waveform();
-void set_fi();
+void ui_set_waveform();
+void ui_set_fi();
 void print_help_message();
-void set_amplitude();
-void set_channel();
-void set_attack();
-void set_decay();
-void set_sustain();
-void set_relase();
+void ui_set_amplitude();
+void ui_set_channel();
+void ui_set_attack();
+void ui_set_decay();
+void ui_set_sustain();
+void ui_set_relase();
 
 /* function definition */
 
-int check_waveform(char c) {
-  char valid_forms[FORMS];
-  int i, v;
-  for (i=0; i < FORMS; i++) 
-    valid_forms[i] = (i + 'a');
-  for (i=0; i < FORMS && c != valid_forms[i]; i++); 
-  return (i < FORMS); 
-}
-
-void set_channel() {
+void ui_set_channel() {
   unsigned short c;
   printf("select channel from 1 to 16: ");
   do {
     scanf("%d", &c);
   }
-  while (c < 0 || c > 16);
-  channel = c;
-  printf("Changed midi channel to %d\n", channel);
+  while (!set_channel(c));
 }
 
-void set_attack() {
-  printf("attack time (ms): ");
-  scanf("%d", &attack_time);
-  printf("attack amplitude: ");
-  scanf("%f", &attack_amplitude);
-  printf("attack: %d ms, %f A\n", attack_time, attack_amplitude);
+void ui_set_attack() {
+  int at;
+  sample_t aa;
+  do { 
+    printf("attack time (ms): ");
+    scanf("%d", &at);
+  } 
+  while(!set_attack_time(at));
+
+  do {
+    printf("attack amplitude: ");
+    scanf("%f", &aa);
+  } 
+  while(!set_attack_amplitude(aa));
 }
 
-void set_decay() {
-  printf("decay time(ms): ");
-  scanf("%d", &decay_time);
-  printf("decay time = %d ms\n", decay_time);
+void ui_set_decay() {
+  int d;
+  do {
+    printf("decay time(ms): ");
+    scanf("%d", &d);
+  }
+  while(!set_decay(d));
 }
 
-void set_sustain() {
-  printf("sustain: ");
-  scanf("%f", &sustain);
-  printf("sustain = %f\n", sustain);
+void ui_set_sustain() {
+  sample_t s;
+  do {
+    printf("sustain: ");
+    scanf("%f", &s);
+  }
+  while(!set_sustain(s));
 }
 
-void set_release() {
-  printf("release time(ms): ");
-  scanf("%d", &release_time);
-  printf("release time = %d ms\n", release_time);
+void ui_set_release() {
+  int r;
+  do {
+    printf("release time(ms): ");
+    scanf("%d", &r);
+  }
+  while(!set_release(r));
 }
 
-void set_waveform() {
-  char name[10];
+void ui_set_waveform() {
   char c;
 
   while(getchar() != '\n');
@@ -101,30 +103,11 @@ void set_waveform() {
          "waveform: ");
 
   c = getchar();
-  while (!check_waveform(c)) {
-    printf("invalid waveform\n");
+  while (!set_waveform(c)) {
     while(getchar() != '\n');
     printf("waveform: ");
     scanf("%c", &c);
   }
-
-  waveform = c;
-  switch(c) {
-    case 'a':
-      strcpy(name, "sine");
-      break;
-    case 'b':
-      strcpy(name, "square");
-      break;
-    case 'c':
-      strcpy(name, "sawtooth");
-      break;
-    case 'd':
-      strcpy(name, "triangle");
-      break;
-  }
-
-  printf("Changed waveform: %s\n", name);
 }
 void shell_loop(char *name) {
   char c;
@@ -137,31 +120,31 @@ void shell_loop(char *name) {
       switch(c)
       {
         case 'A':
-          set_amplitude();
+          ui_set_amplitude();
           break;
         case 'a':
-          set_attack();
+          ui_set_attack();
           break;
         case 'd':
-          set_decay();
+          ui_set_decay();
           break;
         case 's':
-          set_sustain();
+          ui_set_sustain();
           break;
         case 'r':
-          set_release();
+          ui_set_release();
           break;
         case 'W':
-          set_waveform();
+          ui_set_waveform();
           break;
         case 'c':
-          set_channel();
+          ui_set_channel();
           break;
         case 'h':
           print_help_message();
           break;
         case 'i':
-          set_fi();
+          ui_set_fi();
         case '\n':
         case ' ':
         case '\t':
@@ -175,20 +158,22 @@ void shell_loop(char *name) {
   }
 }
 
-void set_fi() {
+void ui_set_fi() {
+  int f;
   do { 
     printf("N° of harmonics: ");
-    scanf("%d", &fi);
+    scanf("%d", &f);
   }  
-  while (fi < 1); 
+  while (!set_fi(f)); 
 }
 
-void set_amplitude() {
-  printf("Set new max amplitude: ");
-  scanf("%f", &max_amplitude);
-  printf("New amplitude = %.2lf\n",  max_amplitude);
-  if (max_amplitude < 0)
-    printf("A < 0 => Inverted Phase\n"); 
+void ui_set_amplitude() {
+  int a;
+  do {
+    printf("Set new max amplitude: ");
+    scanf("%f", &a);
+  }
+  while(!set_amplitude(a));
 }
 
 void print_help_message() {
