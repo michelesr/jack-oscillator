@@ -40,8 +40,8 @@ void ui_set_relase();
 
 void ui_set_channel() {
   unsigned short c;
-  printf("select channel from 1 to 16: ");
   do {
+    printf("select channel from 1 to 16: ");
     scanf("%d", &c);
   }
   while (!set_channel(c));
@@ -96,18 +96,17 @@ void ui_set_waveform() {
   while(getchar() != '\n');
 
   printf("Select waveform: \n"
-         "a) sine\n"
-         "b) square\n"
-         "c) sawtooth\n"
-         "d) triangle\n"
-         "waveform: ");
+         "0) sine\n"
+         "1) square\n"
+         "2) sawtooth\n"
+         "3) triangle\n");
 
-  c = getchar();
-  while (!set_waveform(c)) {
-    while(getchar() != '\n');
+  do {
     printf("waveform: ");
-    scanf("%c", &c);
+    scanf("%d", &c);
   }
+  while(!set_waveform(c));
+
 }
 void shell_loop(char *name) {
   char c;
@@ -168,7 +167,7 @@ void ui_set_fi() {
 }
 
 void ui_set_amplitude() {
-  int a;
+  sample_t a;
   do {
     printf("Set new max amplitude: ");
     scanf("%f", &a);

@@ -21,7 +21,6 @@
 #include <jack/jack.h>
 #include <string.h> 
 #include <stdio.h>
-#include "data.h"
 #define false 0 
 #define true 1
 
@@ -36,10 +35,10 @@ sample_t max_amplitude = 0.5, volume = 1, attack_amplitude = 1, sustain = 1;
 int fi = 20; /* number of harmonics */
 int attack_time = 1, decay_time = 1, release_time = 1;
 unsigned short channel = 1;
-char waveform = 'a';
+char waveform = 0;
 bool_t set_waveform(const char);
 bool_t set_fi(const int );
-bool_t set_amplitude(const int);
+bool_t set_amplitude(const sample_t);
 bool_t set_volume(const sample_t);
 bool_t set_channel(const unsigned short);
 bool_t set_attack_time(const int );
@@ -47,45 +46,36 @@ bool_t set_attack_amplitude(const sample_t);
 bool_t set_decay(const int);
 bool_t set_sustain(const sample_t);
 bool_t set_release(const int);
-bool_t check_waveform(const char);
-
-bool_t check_waveform(const char c) {
-  char valid_forms[FORMS];
-  int i, v;
-  for (i=0; i < FORMS; i++) 
-    valid_forms[i] = (i + 'a');
-  for (i=0; i < FORMS && c != valid_forms[i]; i++); 
-  return (i < FORMS? true: false);
-}
 
 bool_t set_waveform(const char wf) {
   char name[10];
-  if (check_waveform(wf)) {
+  if (wf >= 0 && wf < FORMS) {
     waveform = wf;
     switch(waveform) {
-      case 'a':
+      case 0:
         strcpy(name, "sine");
         break;
-      case 'b':
+      case 1:
         strcpy(name, "square");
         break;
-      case 'c':
+      case 2:
         strcpy(name, "sawtooth");
         break;
-      case 'd':
+      case 3:
         strcpy(name, "triangle");
         break;
     }
     printf("Changed waveform: %s\n", name);
     return true;
   }
-  else 
+  else {
     printf("invalid waveform\n");
     return false;
+  }
 }
 
 bool_t set_fi(const int f) {
-  if (fi < 1) {
+  if (f > 0) {
     fi = f;
     return true;
   }
@@ -93,22 +83,20 @@ bool_t set_fi(const int f) {
     return false;
 }
 
-bool_t set_amplitude(const int a) {
-  if(a > 5 || a < 5) {
+bool_t set_amplitude(const sample_t a) {
+  if(a < 0 || a > 5) {
     printf("invalid amplitude\n");
     return false;
   }
   else {
     max_amplitude = a;
     printf("New amplitude = %.2lf\n",  max_amplitude);
-    if (max_amplitude < 0)
-      printf("A < 0 => Inverted Phase\n"); 
     return true;
   }
 }
 
 bool_t set_channel(const unsigned short c) {
-  if (c < 0 || c > 16) {
+  if (c < 1 || c > 16) {
     printf("Invalid channel number\n");
     return false;
   }
@@ -121,7 +109,7 @@ bool_t set_channel(const unsigned short c) {
 
 bool_t set_attack_time(const int at) {
   if (at < 1) {
-    printf("attack time must be > 1 ms\n");
+    printf("attack time must be >= 1 ms\n");
     return false;
   }
   else {
@@ -132,7 +120,7 @@ bool_t set_attack_time(const int at) {
 }
 
 bool_t set_attack_amplitude(const sample_t aa) {
-  if (aa < 5 || aa > 5) {
+  if (aa < 0 || aa > 5) {
     printf("invalid attack amplitude peak!\n");
     return false;
   }
@@ -145,7 +133,7 @@ bool_t set_attack_amplitude(const sample_t aa) {
 
 bool_t set_decay(const int d) {
   if (d < 1) {
-    printf("decay time must be > 1 ms\n"); 
+    printf("decay time must be >= 1 ms\n"); 
     return false;
   }
   else {
@@ -156,7 +144,7 @@ bool_t set_decay(const int d) {
 }
 
 bool_t set_sustain(const sample_t s) {
-  if (s < 5 || s > 5) {
+  if (s < 0 || s > 5) {
     printf("invalid sustain!\n");
     return false;
   }
@@ -169,7 +157,7 @@ bool_t set_sustain(const sample_t s) {
 
 bool_t set_release(const int r) {
   if (r < 1) {
-    printf("release time must be > 1 ms\n"); 
+    printf("release time must be >= 1 ms\n"); 
     return false;
   }
   else {

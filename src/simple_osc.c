@@ -135,16 +135,16 @@ for(i=0; i<nframes; i++) {
     else if (decay_time > 0 && decay > (sustain/attack_amplitude)) 
       decay -= (sustain/(sr*decay_time/1000));
     switch(waveform) {
-      case 'a':
+      case 0:
         out[i] = attack * decay * sine_w(ramp);
         break;
-      case 'b':
+      case 1:
         out[i] = attack * decay * square_w(ramp);
         break;
-      case 'c':
+      case 2:
         out[i] = attack * decay * sawtooth_w(ramp); 
         break;
-      case 'd':
+      case 3:
         out[i] = attack * decay * triangle_w(ramp);
         break;
     }
@@ -154,16 +154,16 @@ for(i=0; i<nframes; i++) {
     ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
     release -= (sustain/(sr*release_time/1000)); 
     switch(waveform) {
-      case 'a':
+      case 0:
         out[i] = release * sine_w(ramp);
         break;
-      case 'b':
+      case 1:
         out[i] = release * square_w(ramp);
         break;
-      case 'c':
+      case 2:
         out[i] = release * sawtooth_w(ramp); 
         break;
-      case 'd':
+      case 3:
         out[i] = release * triangle_w(ramp);
         break;
     }
