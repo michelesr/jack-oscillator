@@ -31,6 +31,8 @@
 #define GAIN_SAW 0.885
 #define GAIN_TRI 1.01
 
+#define ADSR_NULL -1.0
+
 typedef jack_default_audio_sample_t sample_t;
 
 /* global vars */
@@ -46,6 +48,7 @@ sample_t square_w(sample_t);
 sample_t sawtooth_w(sample_t);
 sample_t triangle_w(sample_t);
 sample_t generate_wave(sample_t *, jack_nframes_t);
+sample_t adsr_envelope(sample_t *, jack_nframes_t);
 void set_note(unsigned char);
 void set_old_note(unsigned char);
 void set_note_on();
@@ -83,29 +86,40 @@ void adsr_reset() {
   release = sustain;
 }
 
-sample_t generate_wave(sample_t *note_frqs, jack_nframes_t sr) {
-  sample_t envelope;
-  bool_t play = false;
+sample_t adsr_envelope(sample_t *note_frqs, jack_nframes_t sr) {
 
   if (note_on) {
     ramp += note_frqs[note];
     ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
-    if (attack_time > 0 && attack < attack_amplitude) 
+    if (attack < attack_amplitude) {
       attack += (attack_amplitude/(sr*attack_time/1000));
-    else if (decay_time > 0 && decay > (sustain/attack_amplitude)) 
-      decay -= (sustain/(sr*decay_time/1000));
-    play = true;
-    envelope = attack * decay;
+      return(attack);
+    }
+    else if ((decay > sustain) && (sustain <= attack_amplitude)) {
+      decay -= (attack_amplitude - sustain)/(sr*decay_time/1000);
+      return(decay);
+    }
+    else
+      return(sustain);
   }
+
   else if (release > 0) {
     ramp += note_frqs[old_note];
     ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
     release -= (sustain/(sr*release_time/1000)); 
-    play = true;
-    envelope = release;
+    return(release);
   }
 
-  if(play) {
+  else
+    return((sample_t) ADSR_NULL);
+
+}
+
+sample_t generate_wave(sample_t *note_frqs, jack_nframes_t sr) {
+  sample_t envelope;
+
+
+  if((envelope = adsr_envelope(note_frqs, sr)) != ADSR_NULL) {
     switch(waveform) {
       case 0:
         return(envelope * sine_w(ramp));
