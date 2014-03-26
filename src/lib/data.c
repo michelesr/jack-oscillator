@@ -28,7 +28,7 @@
 #define FORMS 4 
 
 typedef jack_default_audio_sample_t sample_t;
-typedef short int bool_t;
+typedef char bool_t;
 
 /* global vars */
 sample_t max_amplitude = 0.5, volume = 1, attack_amplitude = 1, sustain = 1;

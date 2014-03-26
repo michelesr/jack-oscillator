@@ -23,7 +23,7 @@
 #define true 1
 
 typedef jack_default_audio_sample_t sample_t;
-typedef short int bool_t;
+typedef char bool_t;
 
 extern sample_t max_amplitude, volume, attack_amplitude, sustain;
 extern unsigned short channel;
