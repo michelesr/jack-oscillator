@@ -84,6 +84,9 @@ void adsr_reset() {
 }
 
 sample_t generate_wave(sample_t *note_frqs, jack_nframes_t sr) {
+  sample_t envelope;
+  bool_t play = false;
+
   if (note_on) {
     ramp += note_frqs[note];
     ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
@@ -91,42 +94,35 @@ sample_t generate_wave(sample_t *note_frqs, jack_nframes_t sr) {
       attack += (attack_amplitude/(sr*attack_time/1000));
     else if (decay_time > 0 && decay > (sustain/attack_amplitude)) 
       decay -= (sustain/(sr*decay_time/1000));
-    switch(waveform) {
-      case 0:
-        return(attack * decay * sine_w(ramp));
-        break;
-      case 1:
-        return(attack * decay * square_w(ramp));
-        break;
-      case 2:
-        return(attack * decay * sawtooth_w(ramp)); 
-        break;
-      case 3:
-        return(attack * decay * triangle_w(ramp));
-        break;
-    }
+    play = true;
+    envelope = attack * decay;
   }
   else if (release > 0) {
     ramp += note_frqs[old_note];
     ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
     release -= (sustain/(sr*release_time/1000)); 
+    play = true;
+    envelope = release;
+  }
+
+  if(play) {
     switch(waveform) {
       case 0:
-        return(release * sine_w(ramp));
+        return(envelope * sine_w(ramp));
         break;
       case 1:
-        return(release * square_w(ramp));
+        return(envelope * square_w(ramp));
         break;
       case 2:
-        return(release * sawtooth_w(ramp)); 
+        return(envelope * sawtooth_w(ramp)); 
         break;
       case 3:
-        return(release * triangle_w(ramp));
+        return(envelope * triangle_w(ramp));
         break;
     }
   }
   else 
-    return(note_on);
+    return((sample_t)0.0);
 
 }
 
