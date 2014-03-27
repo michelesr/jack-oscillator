@@ -34,6 +34,7 @@
 #include "lib/shell_ui.h"
 #include "lib/synth.h"
 #include "lib/controller.h"
+#include "lib/notes.h"
 
 /* global vars */
 
@@ -42,19 +43,12 @@ jack_port_t *out_p;
 jack_nframes_t sr;
 
 sample_t note_frqs[128];
-unsigned char active_notes[128];
 
 /* function declaration */
 
 int process(jack_nframes_t, void*);
 int srate(jack_nframes_t, void*);
-int search_active_note(unsigned char);
-bool_t note_is_active(unsigned char);
-bool_t active_notes_is_empty();
-unsigned char search_highest_active_note();
 void jack_shutdown(void *); 
-void add_active_note(unsigned char );
-void del_active_note(unsigned char ); 
 
 /* function definition */
 
@@ -141,8 +135,7 @@ void jack_shutdown(void *arg) {
 int main(int argc, char **argv) {
 
   jack_client_t *client;
-  char c, name[11];
-  int i;
+  char name[11];
 
   if (argc < 2) {
     printf("Type client name (max 10 char): ");
@@ -156,12 +149,9 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  /* initialize array */
-  for(i = 0; i <= 128; i++) {
-    active_notes[i] = 255;
-  }
-
+  active_notes_init();
   adsr_init();
+
   jack_set_process_callback(client, process, 0);
   jack_set_sample_rate_callback(client, srate, 0);
   jack_on_shutdown(client, jack_shutdown, 0);
@@ -176,46 +166,6 @@ int main(int argc, char **argv) {
 
   shell_loop(name);
   jack_client_close(client);
-  printf("Bye!\n");
   return 0;
 }
 
-void add_active_note(unsigned char note)
-{
-    static int i = 0;
-    if (!note_is_active(note)) {
-      active_notes[i] = note;
-      i = ((i+1)%128);
-    }
-}
-
-void del_active_note(unsigned char note) {
-  active_notes[search_active_note(note)] = 255; 
-}
-
-bool_t note_is_active(unsigned char note) {
-  return((search_active_note(note) < 128)? true: false);
-}
-
-int search_active_note(unsigned char note) {
-  int i;
-  for (i=0; (i < 128) && (active_notes[i] != note); i++);
-  return (i);
-}
-
-unsigned char search_highest_active_note() {
-  char c=-1;
-  int i;
-  for (i=0; i < 128; i++) {
-    if ((c < active_notes[i]) && (active_notes[i] != 255))
-      c = active_notes[i];
-  }
-  if (c == -1)
-    return ((unsigned char) 255);
-  else 
-    return ((unsigned char) c);
-}
-
-bool_t active_notes_is_empty() {
-  return ((search_highest_active_note() == 255)? true: false);
-}
