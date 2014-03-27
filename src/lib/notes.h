@@ -1,8 +1,8 @@
-/*  synth.h header of wave synthesizer
- 
+/*  notes.h implementation of active notes buffer
+
     Copyright (C) 2004 Ian Esten
-    Copyright (C) 2014 Michele Sorcinelli 
-    
+    Copyright (C) 2014 Michele Sorcinelli
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -20,15 +20,8 @@
 
 #include "data.h"
 
-extern void calc_note_frqs(sample_t *, sample_t); 
-extern sample_t sine_w(sample_t);
-extern sample_t square_w(sample_t);
-extern sample_t sawtooth_w(sample_t);
-extern sample_t triangle_w(sample_t);
-extern void set_note(unsigned char);
-extern void set_old_note(unsigned char);
-extern void set_note_on();
-extern void set_note_off();
-extern void adsr_init();
-extern void adsr_reset();
-extern sample_t generate_wave(sample_t *, jack_nframes_t);
+extern bool_t active_notes_is_empty();
+extern void add_active_note(unsigned char );
+extern void del_active_note(unsigned char );
+extern void active_notes_init();
+extern unsigned char search_highest_active_note();

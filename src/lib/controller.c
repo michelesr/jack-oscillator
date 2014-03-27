@@ -33,24 +33,10 @@ void debug_print_midi (jack_midi_event_t event) {
 void handle_midi_control(jack_midi_event_t event) {
   switch(*(event.buffer +1)) {
     case 7: /* volume */
-      volume = (sample_t) ((*(event.buffer+2)) /127.0);
-      printf("Volume: %f\n", volume);
+      set_volume((sample_t) ((*(event.buffer+2)) /127.0));
   }
 }
 
 void handle_midi_program_change(jack_midi_event_t event) {
-  switch(*(event.buffer+1)) {
-    case 0:
-      waveform = 'a';
-      break;
-    case 1:
-      waveform = 'b';
-      break;
-    case 2:
-      waveform = 'c';
-      break;
-    case 3:
-      waveform = 'd';
-      break;
-  }
+  set_waveform((char) *(event.buffer+1));
 }
