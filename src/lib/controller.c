@@ -36,7 +36,17 @@ void handle_midi_control(jack_midi_event_t event) {
       set_volume((sample_t) ((*(event.buffer+2)) /127.0));
       break;
     case 92:
-      set_lp_co((int) (((*(event.buffer+2))+1) * 2000.0 / 128.0));
+      switch(fil) {
+        case LP_FIL:
+          set_lp_co((int) (((*(event.buffer+2))+1) * MAX_CUTOFF / 128.0));
+          break;
+        case HP_FIL:
+          set_hp_co((int) (((*(event.buffer+2))+1) * MAX_CUTOFF / 128.0));
+          break;
+        case BP_FIL:
+          set_bp_min((int) (((*(event.buffer+2))+1) * (bp_max-1) / 128.0));
+          break;
+      }
       break;
   }
 }
