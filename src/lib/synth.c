@@ -49,6 +49,9 @@ sample_t sawtooth_w(sample_t);
 sample_t triangle_w(sample_t);
 sample_t generate_wave(sample_t *, jack_nframes_t);
 sample_t adsr_envelope(sample_t *, jack_nframes_t);
+sample_t output(sample_t *, jack_nframes_t);
+sample_t filter(sample_t, jack_nframes_t);
+sample_t lowpass(sample_t, jack_nframes_t);
 void set_note(unsigned char);
 void set_old_note(unsigned char);
 void set_note_on();
@@ -86,6 +89,10 @@ void adsr_reset() {
   release = sustain;
 }
 
+sample_t output(sample_t *note_frqs, jack_nframes_t sr) {
+  return filter(generate_wave(note_frqs, sr), sr);
+}
+
 sample_t adsr_envelope(sample_t *note_frqs, jack_nframes_t sr) {
 
   if (note_on) {
@@ -113,6 +120,21 @@ sample_t adsr_envelope(sample_t *note_frqs, jack_nframes_t sr) {
   else
     return((sample_t) ADSR_NULL);
 
+}
+
+sample_t filter(sample_t in, jack_nframes_t sr) {
+  switch(fil) {
+    case LP_FIL:
+      return lowpass(in, sr);
+    case NO_FIL:
+    default:
+      return (in);
+  }
+}
+
+sample_t lowpass(sample_t in, jack_nframes_t sr) {
+  /* IMPLEMENT ME */
+  return(in);
 }
 
 sample_t generate_wave(sample_t *note_frqs, jack_nframes_t sr) {

@@ -21,15 +21,23 @@
 #include <jack/jack.h>
 #define false 0
 #define true 1
+#define NO_FIL 0
+#define LP_FIL 1
+#define HP_FIL 2
+#define BP_FIL 3
 
 typedef jack_default_audio_sample_t sample_t;
+typedef char filter_t;
 typedef char bool_t;
 
 extern sample_t max_amplitude, volume, attack_amplitude, sustain;
 extern unsigned short channel;
+extern filter_t fil;
+extern int lp_co, hp_co, bp_min, bp_max;
 extern int fi, attack_time, decay_time, release_time;
 extern char waveform;
 extern bool_t set_waveform(const char);
+extern bool_t set_filter_type(const filter_t);
 extern bool_t set_fi(const int );
 extern bool_t set_amplitude(const sample_t);
 extern bool_t set_volume(const sample_t);
@@ -39,3 +47,7 @@ extern bool_t set_attack_amplitude(const sample_t);
 extern bool_t set_decay(const int);
 extern bool_t set_sustain(const sample_t);
 extern bool_t set_release(const int);
+extern bool_t set_lp_co(const int);
+extern bool_t set_hp_co(const int);
+extern bool_t set_bp_min(const int);
+extern bool_t set_bp_max(const int);
