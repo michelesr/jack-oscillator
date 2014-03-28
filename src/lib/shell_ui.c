@@ -36,6 +36,9 @@ void ui_set_decay();
 void ui_set_sustain();
 void ui_set_relase();
 void ui_set_filter_type();
+void ui_set_lp_co(); 
+void ui_set_hp_co();
+void ui_set_bp();
 
 /* function definition */
 
@@ -145,8 +148,19 @@ void shell_loop(char *name) {
           break;
         case 'i':
           ui_set_fi();
+          break;
         case 'f':
           ui_set_filter_type();
+          break;
+        case 'L':
+          ui_set_lp_co();
+          break;
+        case 'H':
+          ui_set_hp_co();
+          break;
+        case 'B':
+          ui_set_bp();
+          break;
         case '\n':
         case ' ':
         case '\t':
@@ -184,9 +198,45 @@ void ui_set_filter_type() {
     printf("Set filter type:\n"
            "0) filter off\n"
            "1) lowpass\n"
+           "2) highpass\n"
+           "3) bandpass\n"
            "filter type: ");
     scanf("%d", &t); 
   } while(!set_filter_type(t));
+}
+
+void ui_set_lp_co() {
+  int co; 
+  do {
+    printf("lowpass cutoff: "); 
+    scanf("%d", &co);
+  }
+  while (!set_lp_co(co));
+}
+
+void ui_set_hp_co() {
+  int co; 
+  do {
+    printf("highpass cutoff: "); 
+    scanf("%d", &co);
+  }
+  while (!set_hp_co(co));
+}
+
+void ui_set_bp() {
+  int co;
+
+  do {
+    printf("bandpass low cutoff: ");
+    scanf("%d", &co);
+  }
+  while(!set_bp_min(co));
+  
+  do {
+    printf("bandpass high cutoff: ");
+    scanf("%d", &co);
+  }
+  while(!set_bp_max(co));
 }
 
 void print_help_message() {
@@ -194,6 +244,9 @@ void print_help_message() {
          "c -> change channel\n"
          "W -> change waveform\n" 
          "f -> set filter type\n"
+         "L -> set lowpass cutoff\n"
+         "H -> set highpass cutoff\n"
+         "B -> set bands for bandpass\n"
          "a -> set attack time and peak\n"
          "d -> set decay time\n"
          "s -> set sustain\n"

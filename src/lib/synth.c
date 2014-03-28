@@ -52,6 +52,8 @@ sample_t adsr_envelope(sample_t *, jack_nframes_t);
 sample_t output(sample_t *, jack_nframes_t);
 sample_t filter(sample_t, jack_nframes_t);
 sample_t lowpass(sample_t, jack_nframes_t);
+sample_t highpass(sample_t, jack_nframes_t);
+sample_t bandpass(sample_t, jack_nframes_t);
 void set_note(unsigned char);
 void set_old_note(unsigned char);
 void set_note_on();
@@ -126,6 +128,10 @@ sample_t filter(sample_t in, jack_nframes_t sr) {
   switch(fil) {
     case LP_FIL:
       return lowpass(in, sr);
+    case HP_FIL:
+      return highpass(in, sr);
+    case BP_FIL:
+      return bandpass(in, sr);
     case NO_FIL:
     default:
       return (in);
@@ -137,9 +143,18 @@ sample_t lowpass(sample_t in, jack_nframes_t sr) {
   return(in);
 }
 
+sample_t highpass(sample_t in, jack_nframes_t sr) {
+  /* IMPLEMENT ME */
+  return(in);
+}
+
+sample_t bandpass(sample_t in, jack_nframes_t sr) {
+  /* IMPLEMENT ME */
+  return(in);
+}
+
 sample_t generate_wave(sample_t *note_frqs, jack_nframes_t sr) {
   sample_t envelope;
-
 
   if((envelope = adsr_envelope(note_frqs, sr)) != ADSR_NULL) {
     switch(waveform) {

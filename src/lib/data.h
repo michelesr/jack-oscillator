@@ -25,6 +25,7 @@
 #define LP_FIL 1
 #define HP_FIL 2
 #define BP_FIL 3
+#define MAX_CUTOFF 10000
 
 typedef jack_default_audio_sample_t sample_t;
 typedef char filter_t;
