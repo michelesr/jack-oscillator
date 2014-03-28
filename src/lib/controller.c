@@ -34,6 +34,10 @@ void handle_midi_control(jack_midi_event_t event) {
   switch(*(event.buffer +1)) {
     case 7: /* volume */
       set_volume((sample_t) ((*(event.buffer+2)) /127.0));
+      break;
+    case 92:
+      set_lp_co((int) (((*(event.buffer+2))+1) * 2000.0 / 128.0));
+      break;
   }
 }
 

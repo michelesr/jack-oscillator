@@ -35,6 +35,7 @@ void ui_set_attack();
 void ui_set_decay();
 void ui_set_sustain();
 void ui_set_relase();
+void ui_set_filter_type();
 
 /* function definition */
 
@@ -144,6 +145,8 @@ void shell_loop(char *name) {
           break;
         case 'i':
           ui_set_fi();
+        case 'f':
+          ui_set_filter_type();
         case '\n':
         case ' ':
         case '\t':
@@ -175,10 +178,22 @@ void ui_set_amplitude() {
   while(!set_amplitude(a));
 }
 
+void ui_set_filter_type() {
+  filter_t t;
+  do {
+    printf("Set filter type:\n"
+           "0) filter off\n"
+           "1) lowpass\n"
+           "filter type: ");
+    scanf("%d", &t); 
+  } while(!set_filter_type(t));
+}
+
 void print_help_message() {
   printf("h -> help\n"
          "c -> change channel\n"
          "W -> change waveform\n" 
+         "f -> set filter type\n"
          "a -> set attack time and peak\n"
          "d -> set decay time\n"
          "s -> set sustain\n"

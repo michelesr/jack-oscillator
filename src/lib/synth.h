@@ -31,4 +31,4 @@ extern void set_note_on();
 extern void set_note_off();
 extern void adsr_init();
 extern void adsr_reset();
-extern sample_t generate_wave(sample_t *, jack_nframes_t);
+extern sample_t output(sample_t *, jack_nframes_t);

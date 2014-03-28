@@ -115,7 +115,7 @@ int process(jack_nframes_t nframes, void *arg) {
     if(event_index < event_count)
       jack_midi_event_get(&in_event, port_buf, event_index);
 
-    out[i] = generate_wave(note_frqs,sr);
+    out[i] = output(note_frqs,sr);
 
   }
   return 0;      
