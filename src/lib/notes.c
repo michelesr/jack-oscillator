@@ -19,61 +19,72 @@
 */
 
 #include "data.h"
+#include "notes.h"
 
-unsigned char active_notes[128];
+note_t active_notes[128];
 
 bool_t note_is_active(unsigned char);
 bool_t active_notes_is_empty();
 int search_active_note(unsigned char);
-void add_active_note(unsigned char );
+void add_active_note(unsigned char, unsigned char );
 void del_active_note(unsigned char );
 void active_notes_init();
-unsigned char search_highest_active_note();
+note_t get_note_by_id(unsigned char);
+note_t search_highest_active_note();
 
 void active_notes_init() {
   int i;
   /* initialize array */
-  for(i = 0; i <= 128; i++) {
-    active_notes[i] = 255;
+  for(i = 0; i < 128; i++) {
+    active_notes[i].id = 255;
+    active_notes[i].vel = 0;
   }
 }
 
-void add_active_note(unsigned char note)
+void add_active_note(unsigned char note, unsigned char vel)
 {
     static int i = 0;
     if (!note_is_active(note)) {
-      active_notes[i] = note;
+      active_notes[i].id = note;
+      active_notes[i].vel = vel;
       i = ((i+1)%128);
     }
 }
 
 void del_active_note(unsigned char note) {
-  active_notes[search_active_note(note)] = 255;
+  active_notes[search_active_note(note)].id = 255;
+  active_notes[search_active_note(note)].vel = 0;
 }
 
 bool_t note_is_active(unsigned char note) {
   return((search_active_note(note) < 128)? true: false);
 }
 
-int search_active_note(unsigned char note) {
+int search_active_note(unsigned char id) {
   int i;
-  for (i=0; (i < 128) && (active_notes[i] != note); i++);
+  for (i=0; (i < 128) && (active_notes[i].id != id); i++);
   return (i);
 }
 
-unsigned char search_highest_active_note() {
-  char c=-1;
-  int i;
+note_t get_note_by_id(unsigned char id) {
+  return active_notes[search_active_note(id)];
+}
+
+note_t search_highest_active_note() {
+  int i, c = -1;
+  note_t out = NOTE_ZERO;
+
   for (i=0; i < 128; i++) {
-    if ((c < active_notes[i]) && (active_notes[i] != 255))
-      c = active_notes[i];
+    if ((c < active_notes[i].id) && (active_notes[i].id != 255))
+      c = active_notes[i].id;
   }
-  if (c == -1)
-    return ((unsigned char) 255);
-  else
-    return ((unsigned char) c);
+  
+  if (c > -1)
+    out = get_note_by_id(c);
+
+  return out;
 }
 
 bool_t active_notes_is_empty() {
-  return ((search_highest_active_note() == 255)? true: false);
+  return ((search_highest_active_note().id == 255)? true: false);
 }

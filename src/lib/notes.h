@@ -20,8 +20,15 @@
 
 #include "data.h"
 
+#define NOTE_ZERO { .id = 255, .vel = 0 }
+
+typedef struct note {
+  unsigned char id, vel;
+} note_t;
+
 extern bool_t active_notes_is_empty();
-extern void add_active_note(unsigned char );
+extern void add_active_note(unsigned char, unsigned char );
 extern void del_active_note(unsigned char );
 extern void active_notes_init();
-extern unsigned char search_highest_active_note();
+extern note_t get_note_by_id(unsigned char);
+extern note_t search_highest_active_note();

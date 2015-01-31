@@ -34,7 +34,6 @@
 #include "lib/shell_ui.h"
 #include "lib/synth.h"
 #include "lib/controller.h"
-#include "lib/notes.h"
 
 /* global vars */
 
@@ -56,6 +55,7 @@ int process(jack_nframes_t nframes, void *arg) {
 
   int i;
   unsigned char c = 0;
+  unsigned char v = 0;
   void* port_buf = jack_port_get_buffer(in_p, nframes);
   sample_t *out = (sample_t *) jack_port_get_buffer (out_p, nframes);
   jack_midi_event_t in_event;
@@ -78,8 +78,10 @@ int process(jack_nframes_t nframes, void *arg) {
 
           /* get note from jack buffer */
           c = (*(in_event.buffer + 1));
+          /* get velocity */
+          v = (*(in_event.buffer +2));
           /* add to our buffer */
-          add_active_note(c);
+          add_active_note(c, v);
           /* play highest note in buffer */
           set_note(search_highest_active_note());
           set_note_on();

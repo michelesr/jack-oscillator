@@ -21,6 +21,7 @@
 #include <math.h>
 #include <jack/jack.h>
 #include "data.h"
+#include "notes.h"
 
 /* frequence of A4 */
 #define TUNING 440.0 
@@ -30,7 +31,6 @@
 #define GAIN_SQR 0.85
 #define GAIN_SAW 0.885
 #define GAIN_TRI 1.01
-
 #define ADSR_NULL -1.0
 
 typedef jack_default_audio_sample_t sample_t;
@@ -38,8 +38,10 @@ typedef jack_default_audio_sample_t sample_t;
 /* global vars */
 sample_t ramp = 0.0;
 sample_t note_on = 0;
-unsigned char note = 0, old_note = 0;
-sample_t attack,decay,release;
+/*unsigned char note = 0, old_note = 0;*/
+note_t note = NOTE_ZERO;
+note_t old_note = NOTE_ZERO;
+sample_t attack, decay, release;
 
 /* function declaration */
 void calc_note_frqs(sample_t *, sample_t); 
@@ -49,7 +51,7 @@ sample_t sawtooth_w(sample_t);
 sample_t triangle_w(sample_t);
 sample_t generate_wave(sample_t *, jack_nframes_t);
 sample_t adsr_envelope(sample_t *, jack_nframes_t);
-void set_note(unsigned char);
+void set_note(note_t);
 void set_old_note(unsigned char);
 void set_note_on();
 void set_note_off();
@@ -58,12 +60,13 @@ void adsr_reset();
 
 /* function definition */
 
-void set_note(unsigned char n) {
+void set_note(note_t n) {
   note = n;
 }
 
-void set_old_note(unsigned char n) {
-  old_note = n;
+void set_old_note(unsigned char id) {
+  old_note.id = id;
+  old_note.vel = note.vel;
 }
 
 void set_note_on() {
@@ -88,55 +91,60 @@ void adsr_reset() {
 
 sample_t adsr_envelope(sample_t *note_frqs, jack_nframes_t sr) {
 
+  sample_t out;
+
   if (note_on) {
-    ramp += note_frqs[note];
+    ramp += note_frqs[note.id];
     ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
     if (attack < attack_amplitude) {
       attack += (attack_amplitude/(sr*attack_time/1000));
-      return(attack);
+      out = attack;
     }
     else if ((decay > sustain) && (sustain <= attack_amplitude)) {
       decay -= (attack_amplitude - sustain)/(sr*decay_time/1000);
-      return(decay);
+      out = decay;
     }
     else
-      return(sustain);
+      out = sustain;
+    out *= note.vel / 127.0;
   }
 
   else if (release > 0) {
-    ramp += note_frqs[old_note];
+    ramp += note_frqs[old_note.id];
     ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
     release -= (sustain/(sr*release_time/1000)); 
-    return(release);
+    out = release;
+    out *= old_note.vel / 127.0;
   }
 
   else
-    return((sample_t) ADSR_NULL);
+    out = (sample_t) ADSR_NULL;
 
+  return out;
 }
 
 sample_t generate_wave(sample_t *note_frqs, jack_nframes_t sr) {
-  sample_t envelope;
-
+  sample_t envelope, out;
 
   if((envelope = adsr_envelope(note_frqs, sr)) != ADSR_NULL) {
     switch(waveform) {
       case 0:
-        return(envelope * sine_w(ramp));
+        out = sine_w(ramp);
         break;
       case 1:
-        return(envelope * square_w(ramp));
+        out = square_w(ramp);
         break;
       case 2:
-        return(envelope * sawtooth_w(ramp)); 
+        out = sawtooth_w(ramp); 
         break;
       case 3:
-        return(envelope * triangle_w(ramp));
+        out = triangle_w(ramp);
         break;
     }
   }
   else 
-    return((sample_t)0.0);
+    out = (sample_t)0.0;
+  return (envelope * out);
 
 }
 

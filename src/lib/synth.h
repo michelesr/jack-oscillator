@@ -19,13 +19,14 @@
 */
 
 #include "data.h"
+#include "notes.h"
 
 extern void calc_note_frqs(sample_t *, sample_t); 
 extern sample_t sine_w(sample_t);
 extern sample_t square_w(sample_t);
 extern sample_t sawtooth_w(sample_t);
 extern sample_t triangle_w(sample_t);
-extern void set_note(unsigned char);
+extern void set_note(note_t);
 extern void set_old_note(unsigned char);
 extern void set_note_on();
 extern void set_note_off();
