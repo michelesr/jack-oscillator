@@ -167,13 +167,7 @@ sample_t sawtooth_w(sample_t ramp) {
 
 /* additive synthesis */
 sample_t triangle_w(sample_t ramp) {
-  int k;
-  sample_t x = 0;
-
-  for (k=0; k < fi; k++)
-    x += pow(-1,k) * sin(M_PI*ramp*(2*k+1))/(2*k+1)/(2*k+1);
-
-  return(GAIN_TRI * volume * max_amplitude * x * 8 / M_PI / M_PI);
+  return (GAIN_TRI * volume * max_amplitude * (1 - 2*fabs(ramp)));
 }
 
 void calc_note_frqs(sample_t *note_frqs, sample_t srate) {

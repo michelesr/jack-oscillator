@@ -36,11 +36,6 @@ Usage
         d -> set decay time
         s -> set sustain
         r -> set release time 
-        i -> set number of harmonics
-
-        The number of harmonics is related to the precision of the waveform... 
-        more is higher, and more cpu power is needed... you can set at around 20 
-        or higher if you want (will your ear notice the difference?).
 
 This is free software... feel free to change and redistribute, under the same license (GPLv3). 
 

@@ -142,8 +142,8 @@ void shell_loop(char *name) {
         case 'h':
           print_help_message();
           break;
-        case 'i':
-          ui_set_fi();
+        /*case 'i':
+          ui_set_fi(); */
         case '\n':
         case ' ':
         case '\t':
@@ -185,5 +185,5 @@ void print_help_message() {
          "r -> set release time\n"
          "A -> set amplitude (volume)\n"
          "i -> set number of harmonics\n"
-         "The number of harmonics is related to the precision of the waveform... more is higher, and more cpu power is needed... you can set at around 20 or higher if you want (will your ear notice the difference?).\n"); 
+         /*"The number of harmonics is related to the precision of the waveform... more is higher, and more cpu power is needed... you can set at around 20 or higher if you want (will your ear notice the difference?).\n"*/); 
 }
