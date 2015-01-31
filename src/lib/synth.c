@@ -140,36 +140,38 @@ sample_t generate_wave(sample_t *note_frqs, jack_nframes_t sr) {
 
 }
 
+/* natural sine */
 sample_t sine_w(sample_t ramp) {
-  return (volume * max_amplitude * GAIN_SIN * sin(2*M_PI*ramp));
+  return (volume * max_amplitude * GAIN_SIN * sin(M_PI*ramp));
 }
 
+
+/* we define square wave using if-else */
 sample_t square_w(sample_t ramp) {
-  int k;
-  sample_t x = 0;
+  sample_t y;
 
-  for (k=1; k <= fi; k++) 
-    x += (sin(2*M_PI*ramp*(2*k -1))/(2*k -1));
+  if (ramp < 0)
+    y = -1.0;
+  else if (ramp > 0)
+    y = 1.0;
+  else
+    y = 0;
 
-  return(volume * max_amplitude * GAIN_SQR * 4*x/M_PI);
+  return (GAIN_SQR * volume * max_amplitude * y);
 }
 
+/* ramp generate itself a sawtooth wave so we just scale */
 sample_t sawtooth_w(sample_t ramp) {
-  int k;
-  sample_t x = 0;
-
-  for (k=1; k <= fi; k++)
-    x += pow(-1,k)/k * sin(2*M_PI*ramp*k); 
-
-  return(GAIN_SAW * volume * max_amplitude * x *(-2)/M_PI);
+  return(GAIN_SAW * volume * max_amplitude * ramp);
 }
 
+/* additive synthesis */
 sample_t triangle_w(sample_t ramp) {
   int k;
   sample_t x = 0;
 
   for (k=0; k < fi; k++)
-    x += pow(-1,k) * sin(2*M_PI*ramp*(2*k+1))/(2*k+1)/(2*k+1); 
+    x += pow(-1,k) * sin(M_PI*ramp*(2*k+1))/(2*k+1)/(2*k+1);
 
   return(GAIN_TRI * volume * max_amplitude * x * 8 / M_PI / M_PI);
 }
@@ -177,5 +179,5 @@ sample_t triangle_w(sample_t ramp) {
 void calc_note_frqs(sample_t *note_frqs, sample_t srate) {
   int i;
   for(i=0; i<128; i++)
-    note_frqs[i] = (TUNING / 32.0) * pow(2, (((sample_t)i - 9.0) / 12.0)) / srate;
+    note_frqs[i] = (TUNING / 16.0) * pow(2, (((sample_t)i - 9.0) / 12.0)) / srate;
 }
