@@ -26,8 +26,8 @@ note_t active_notes[128];
 bool_t note_is_active(unsigned char);
 bool_t active_notes_is_empty();
 int search_active_note(unsigned char);
-void add_active_note(unsigned char, unsigned char );
-void del_active_note(unsigned char );
+void add_active_note(note_t);
+unsigned char del_active_note(unsigned char );
 void active_notes_init();
 note_t get_note_by_id(unsigned char);
 note_t search_highest_active_note();
@@ -41,19 +41,21 @@ void active_notes_init() {
   }
 }
 
-void add_active_note(unsigned char note, unsigned char vel)
+void add_active_note(note_t n)
 {
     static int i = 0;
-    if (!note_is_active(note)) {
-      active_notes[i].id = note;
-      active_notes[i].vel = vel;
+    if (!note_is_active(n.id)) {
+      active_notes[i].id = n.id;
+      active_notes[i].vel = n.vel;
       i = ((i+1)%128);
     }
 }
 
-void del_active_note(unsigned char note) {
-  active_notes[search_active_note(note)].id = 255;
-  active_notes[search_active_note(note)].vel = 0;
+unsigned char del_active_note(unsigned char id) {
+  unsigned char old_vel = active_notes[search_active_note(id)].vel;
+  active_notes[search_active_note(id)].id = 255;
+  active_notes[search_active_note(id)].vel = 0;
+  return old_vel;
 }
 
 bool_t note_is_active(unsigned char note) {

@@ -1,25 +1,27 @@
 MikeSimpleOsc
 =============
 
-* Single oscillator synth with simple waveforms for JACK (Jack Audio Connection Kit) 
+* Single oscillator synthesizer with traditional waveforms for JACK (Jack Audio Connection Kit)
 
-* This is a single-oscillator synthesizer with simple waveforms (sine, square, sawtooth, triangle), you can select the waveform, amplitude, e precision of the fourier expansion with the shell interface.
+* This is a single-oscillator lightweight synthesizer, with traditional waves (sine, square, sawtooth, triangle). You can select the form, amplitude and envelope of the wave.
 
 Compilation
 -----------
 
-* In order to get this software working, you need a JACK (Jack Audio Connection Kit) Server, you can install by repository. Official site: http://jackaudio.org .
+* In order to get this software working, JACK Server is required. Often you can find a jack or jack2 (jackdmp) in your distribution packages. Official site: http://jackaudio.org .
 
 * There's no a configure file, just a simple Makefile, with -ljack -ldl -lrt -lm -lpthread flags.. if you can't compile try installing these libraries (dev headers).
 
 Usage
 -----
 
-* You only have a main binary. Start it. Now you can use a jack frontend to connect the ports (you have a mono audio out and a midi input).
+* The program is composed of only a main binary, start it.
 
-* If your midi controller work with ALSA sequencer instead of JACK midi driver, no trouble... you can use 'a2j -e' to convert ALSA ports in MIDI ports and viceversa.
+* Now you can use a jack frontend (such as qjackctl) to connect the ports (you have a mono audio out and a midi input).
 
-* About the shell... the client needs a name, you can provide in command line or the client will ask you on start... after that, a simple shell will appear.
+* If your midi controllers works with ALSA sequencer instead of JACK midi driver, try using 'a2j -e' (provided by a2jmidid) to convert ALSA ports in MIDI ports and viceversa.
+
+* The client needs a name, you can provide in command line, otherwise the client will ask you on start, and after that, a simple shell will appear.
 
         $ simple_osc osc1
 
@@ -36,6 +38,8 @@ Usage
         d -> set decay time
         s -> set sustain
         r -> set release time 
+
+* MIDI CONTROLS - Volume (Controller #7) , Program Change (MIDI Program/Bank Change)
 
 This is free software... feel free to change and redistribute, under the same license (GPLv3). 
 

@@ -27,8 +27,8 @@ typedef struct note {
 } note_t;
 
 extern bool_t active_notes_is_empty();
-extern void add_active_note(unsigned char, unsigned char );
-extern void del_active_note(unsigned char );
+extern unsigned char del_active_note(unsigned char);
+extern void add_active_note(note_t);
 extern void active_notes_init();
 extern note_t get_note_by_id(unsigned char);
 extern note_t search_highest_active_note();

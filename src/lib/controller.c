@@ -22,13 +22,17 @@
 #include <jack/midiport.h>
 #include "data.h"
 
-void debug_print_midi(jack_midi_event_t event);
+/*void debug_print_midi(jack_midi_event_t event);*/
 void handle_midi_control(jack_midi_event_t event);
 void handle_program_change(jack_midi_event_t event);
+
+/*
 
 void debug_print_midi (jack_midi_event_t event) {
   fprintf(stderr, "event: type:%x ch:%d par_a:%d par_b:%d \n", *(event.buffer)&0xf0, (*(event.buffer)&0x0f)+1, *(event.buffer+1), *(event.buffer+2) );
 }
+
+*/
 
 void handle_midi_control(jack_midi_event_t event) {
   switch(*(event.buffer +1)) {
