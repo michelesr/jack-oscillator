@@ -1,7 +1,6 @@
 /*  synth.h header of wave synthesizer
  
-    Copyright (C) 2004 Ian Esten
-    Copyright (C) 2014 Michele Sorcinelli 
+    Copyright (C) 2014-2015 Michele Sorcinelli
     
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

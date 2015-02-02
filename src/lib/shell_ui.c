@@ -1,7 +1,6 @@
 /*  shell_ui.c implementation of textual user interface
  
-    Copyright (C) 2004 Ian Esten
-    Copyright (C) 2014 Michele Sorcinelli 
+    Copyright (C) 2014-2015 Michele Sorcinelli
     
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -184,6 +183,6 @@ void print_help_message() {
          "s -> set sustain\n"
          "r -> set release time\n"
          "A -> set amplitude (volume)\n"
-         "i -> set number of harmonics\n"
-         /*"The number of harmonics is related to the precision of the waveform... more is higher, and more cpu power is needed... you can set at around 20 or higher if you want (will your ear notice the difference?).\n"*/); 
+         /*"i -> set number of harmonics\n"
+         "The number of harmonics is related to the precision of the waveform... more is higher, and more cpu power is needed... you can set at around 20 or higher if you want (will your ear notice the difference?).\n"*/);
 }

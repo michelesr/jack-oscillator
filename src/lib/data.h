@@ -1,7 +1,6 @@
 /*  data.c header of types and data
  
-    Copyright (C) 2004 Ian Esten
-    Copyright (C) 2014 Michele Sorcinelli 
+    Copyright (C) 2014-2015 Michele Sorcinelli
     
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,7 +24,7 @@
 typedef jack_default_audio_sample_t sample_t;
 typedef char bool_t;
 
-extern sample_t max_amplitude, volume, attack_amplitude, sustain;
+extern sample_t max_amplitude, volume, attack_amplitude, sustain, bender;
 extern unsigned short channel;
 extern int fi, attack_time, decay_time, release_time;
 extern char waveform;
@@ -33,6 +32,7 @@ extern bool_t set_waveform(const char);
 extern bool_t set_fi(const int );
 extern bool_t set_amplitude(const sample_t);
 extern bool_t set_volume(const sample_t);
+extern bool_t set_bender(const sample_t);
 extern bool_t set_channel(const unsigned short);
 extern bool_t set_attack_time(const int );
 extern bool_t set_attack_amplitude(const sample_t);

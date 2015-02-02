@@ -1,7 +1,6 @@
 /*  synth.c implementation of wave synthesizer
  
-    Copyright (C) 2004 Ian Esten
-    Copyright (C) 2014 Michele Sorcinelli 
+    Copyright (C) 2014-2015 Michele Sorcinelli
     
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,6 +31,9 @@
 #define GAIN_SAW 0.885
 #define GAIN_TRI 1.01
 #define ADSR_NULL -1.0
+
+/* bending macro */
+#define BENDING (bender * frq * (bender < 0 ? 0.5 : 1))
 
 typedef jack_default_audio_sample_t sample_t;
 
@@ -91,10 +93,11 @@ void adsr_reset() {
 
 sample_t adsr_envelope(sample_t *note_frqs, jack_nframes_t sr) {
 
-  sample_t out;
+  sample_t out, frq;
 
   if (note_on) {
-    ramp += note_frqs[note.id];
+    frq = note_frqs[note.id];
+    ramp += frq + BENDING;
     ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
     if (attack < attack_amplitude) {
       attack += (attack_amplitude/(sr*attack_time/1000));
@@ -110,7 +113,8 @@ sample_t adsr_envelope(sample_t *note_frqs, jack_nframes_t sr) {
   }
 
   else if (release > 0) {
-    ramp += note_frqs[old_note.id];
+    frq = note_frqs[old_note.id];
+    ramp += frq + BENDING;
     ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
     release -= (sustain/(sr*release_time/1000)); 
     out = release;

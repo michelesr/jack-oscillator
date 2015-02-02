@@ -1,7 +1,6 @@
 /*  data.c implementation of types and data
  
-    Copyright (C) 2004 Ian Esten
-    Copyright (C) 2014 Michele Sorcinelli 
+    Copyright (C) 2014-2015 Michele Sorcinelli
     
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,8 +30,8 @@ typedef jack_default_audio_sample_t sample_t;
 typedef char bool_t;
 
 /* global vars */
-sample_t max_amplitude = 0.5, volume = 1, attack_amplitude = 1, sustain = 1;
-int fi = 20; /* number of harmonics */
+sample_t max_amplitude = 0.5, volume = 1, attack_amplitude = 1, sustain = 1, bender = 0.0;
+int fi = 20; /* number of harmonics (not used anymore) */
 int attack_time = 1, decay_time = 1, release_time = 1;
 unsigned short channel = 1;
 char waveform = 0;
@@ -40,6 +39,7 @@ bool_t set_waveform(const char);
 bool_t set_fi(const int );
 bool_t set_amplitude(const sample_t);
 bool_t set_volume(const sample_t);
+bool_t set_bender(const sample_t);
 bool_t set_channel(const unsigned short);
 bool_t set_attack_time(const int );
 bool_t set_attack_amplitude(const sample_t);
@@ -93,6 +93,11 @@ bool_t set_amplitude(const sample_t a) {
     printf("New amplitude = %.2lf\n",  max_amplitude);
     return true;
   }
+}
+
+bool_t set_bender(const sample_t b) {
+  bender = b;
+  return true;
 }
 
 bool_t set_channel(const unsigned short c) {

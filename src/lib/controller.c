@@ -1,7 +1,6 @@
-/*  controller.c implementation of midi control handling  
+/*  controller.c implementation of midi signal handling
  
-    Copyright (C) 2004 Ian Esten
-    Copyright (C) 2014 Michele Sorcinelli 
+    Copyright (C) 2014-2015 Michele Sorcinelli
     
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,26 +20,32 @@
 #include <stdio.h>
 #include <jack/midiport.h>
 #include "data.h"
+#include "math.h"
 
-/*void debug_print_midi(jack_midi_event_t event);*/
-void handle_midi_control(jack_midi_event_t event);
-void handle_program_change(jack_midi_event_t event);
+#define BENDER_ZERO 16384
 
 /*
-
-void debug_print_midi (jack_midi_event_t event) {
-  fprintf(stderr, "event: type:%x ch:%d par_a:%d par_b:%d \n", *(event.buffer)&0xf0, (*(event.buffer)&0x0f)+1, *(event.buffer+1), *(event.buffer+2) );
-}
-
+   NOTE: jack_midi_dump command will dump out midi signal
+   MIDI TABLES: http://www.midi.org/techspecs/midimessages.php
 */
 
-void handle_midi_control(jack_midi_event_t event) {
-  switch(*(event.buffer +1)) {
+void handle_midi_control(jack_midi_event_t e);
+void handle_midi_bending(jack_midi_event_t e);
+void handle_program_change(jack_midi_event_t e);
+
+void handle_midi_control(jack_midi_event_t e) {
+  switch(*(e.buffer +1)) {
     case 7: /* volume */
-      set_volume((sample_t) ((*(event.buffer+2)) /127.0));
+      set_volume((sample_t) ((*(e.buffer+2)) /127.0));
   }
 }
 
-void handle_midi_program_change(jack_midi_event_t event) {
-  set_waveform((char) *(event.buffer+1));
+void handle_midi_program_change(jack_midi_event_t e) {
+  set_waveform((char) *(e.buffer+1));
+}
+
+void handle_midi_bending(jack_midi_event_t e) {
+  /* 4 hex digits divided in 2 bytes, Less Significant Byte First */
+  int v = (*(e.buffer+1) + *(e.buffer+2) * pow(16,2)) - BENDER_ZERO;
+  set_bender(1.0*v/BENDER_ZERO);
 }
