@@ -1,4 +1,4 @@
-MikeSimpleOsc
+jack-simple-osc
 =============
 
 * Single oscillator synthesizer with traditional waveforms for JACK (Jack Audio Connection Kit)
