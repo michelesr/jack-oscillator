@@ -79,7 +79,7 @@ note_t search_highest_active_note() {
     if ((c < active_notes[i].id) && (active_notes[i].id != 255))
       c = active_notes[i].id;
   }
-  
+
   if (c > -1)
     out = get_note_by_id(c);
 

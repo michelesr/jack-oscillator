@@ -14,11 +14,11 @@ $(PREFIX)/simple_osc: $(OBJ)/data.o $(OBJ)/shell_ui.o $(OBJ)/synth.o $(OBJ)/cont
 $(OBJ)/data.o: $(LIB)/data.c Makefile
 	mkdir -p $(OBJ)/
 	gcc $(LIB)/data.c -o $(OBJ)/data.o -c $(CFLAGS)
-	
+
 $(OBJ)/shell_ui.o: $(LIB)/shell_ui.c Makefile
 	mkdir -p $(OBJ)/
 	gcc $(LIB)/shell_ui.c -o $(OBJ)/shell_ui.o -c $(CFLAGS)
-	
+
 $(OBJ)/synth.o: $(LIB)/synth.c Makefile
 	mkdir -p $(OBJ)/
 	gcc $(LIB)/synth.c -o $(OBJ)/synth.o -c $(CFLAGS)
@@ -34,7 +34,7 @@ $(OBJ)/notes.o: $(LIB)/notes.c Makefile
 debug: $(SRC)/simple_osc.c $(LIB)/data.c $(LIB)/shell_ui.c $(LIB)/synth.c $(LIB)/controller.c $(LIB)/notes.c Makefile
 	mkdir -p $(PREFIX)
 	gcc $(SRC)/simple_osc.c $(LIB)/shell_ui.c $(LIB)/synth.c $(LIB)/data.c $(LIB)/controller.c $(LIB)/notes.c \
-	-o $(PREFIX)/simple_osc_db $(DFLAGS) 
+	-o $(PREFIX)/simple_osc_db $(DFLAGS)
 
 clean:
 	rm -fr $(OBJ)

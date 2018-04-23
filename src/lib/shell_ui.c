@@ -1,7 +1,7 @@
 /*  shell_ui.c implementation of textual user interface
- 
+
     Copyright (C) 2014-2015 Michele Sorcinelli
-    
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "synth.h"
-#include "data.h" 
+#include "data.h"
 
 /* function declaration */
 
@@ -49,16 +49,16 @@ void ui_set_channel() {
 void ui_set_attack() {
   int at;
   sample_t aa;
-  do { 
+  do {
     printf("attack time (ms): ");
     scanf("%d", &at);
-  } 
+  }
   while(!set_attack_time(at));
 
   do {
     printf("attack amplitude: ");
     scanf("%f", &aa);
-  } 
+  }
   while(!set_attack_amplitude(aa));
 }
 
@@ -113,7 +113,7 @@ void shell_loop(char *name) {
          "To close the synth, type q or ^D\n%s: ", name);
 
   /* shell loop */
-  while((c = getchar()) != 'q' && c != EOF) 
+  while((c = getchar()) != 'q' && c != EOF)
   {
       switch(c)
       {
@@ -158,11 +158,11 @@ void shell_loop(char *name) {
 
 void ui_set_fi() {
   int f;
-  do { 
+  do {
     printf("N° of harmonics: ");
     scanf("%d", &f);
-  }  
-  while (!set_fi(f)); 
+  }
+  while (!set_fi(f));
 }
 
 void ui_set_amplitude() {
@@ -177,7 +177,7 @@ void ui_set_amplitude() {
 void print_help_message() {
   printf("h -> help\n"
          "c -> change channel\n"
-         "W -> change waveform\n" 
+         "W -> change waveform\n"
          "a -> set attack time and peak\n"
          "d -> set decay time\n"
          "s -> set sustain\n"

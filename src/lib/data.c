@@ -1,7 +1,7 @@
 /*  data.c implementation of types and data
- 
+
     Copyright (C) 2014-2015 Michele Sorcinelli
-    
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -18,13 +18,13 @@
 */
 
 #include <jack/jack.h>
-#include <string.h> 
+#include <string.h>
 #include <stdio.h>
-#define false 0 
+#define false 0
 #define true 1
 
 /* number of implemented waveforms */
-#define FORMS 4 
+#define FORMS 4
 
 typedef jack_default_audio_sample_t sample_t;
 typedef char bool_t;
@@ -79,7 +79,7 @@ bool_t set_fi(const int f) {
     fi = f;
     return true;
   }
-  else 
+  else
     return false;
 }
 
@@ -138,7 +138,7 @@ bool_t set_attack_amplitude(const sample_t aa) {
 
 bool_t set_decay(const int d) {
   if (d < 1) {
-    printf("decay time must be >= 1 ms\n"); 
+    printf("decay time must be >= 1 ms\n");
     return false;
   }
   else {
@@ -162,7 +162,7 @@ bool_t set_sustain(const sample_t s) {
 
 bool_t set_release(const int r) {
   if (r < 1) {
-    printf("release time must be >= 1 ms\n"); 
+    printf("release time must be >= 1 ms\n");
     return false;
   }
   else {
@@ -176,8 +176,8 @@ bool_t set_volume(const sample_t v) {
   if (v < 0 || v > 1) {
     printf("invalid volume\n");
     return false;
-  } 
-  else { 
+  }
+  else {
     volume = v;
     printf("Volume: %f\n", volume);
     return true;

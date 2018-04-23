@@ -1,7 +1,7 @@
 /*  synth.c implementation of wave synthesizer
- 
+
     Copyright (C) 2014-2015 Michele Sorcinelli
-    
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -23,7 +23,7 @@
 #include "notes.h"
 
 /* frequence of A4 */
-#define TUNING 440.0 
+#define TUNING 440.0
 
 /* gain adjustment for waveforms */
 #define GAIN_SIN 1.0
@@ -46,7 +46,7 @@ note_t old_note = NOTE_ZERO;
 sample_t attack, decay, release;
 
 /* function declaration */
-void calc_note_frqs(sample_t *, sample_t); 
+void calc_note_frqs(sample_t *, sample_t);
 sample_t sine_w(sample_t);
 sample_t square_w(sample_t);
 sample_t sawtooth_w(sample_t);
@@ -82,7 +82,7 @@ void set_note_off() {
 void adsr_init() {
   attack = 0;
   release = 0;
-  decay = attack_amplitude; 
+  decay = attack_amplitude;
 }
 
 void adsr_reset() {
@@ -116,7 +116,7 @@ sample_t adsr_envelope(sample_t *note_frqs, jack_nframes_t sr) {
     frq = note_frqs[old_note.id];
     ramp += frq + BENDING;
     ramp = (ramp > 1.0) ? ramp - 2.0 : ramp;
-    release -= (sustain/(sr*release_time/1000)); 
+    release -= (sustain/(sr*release_time/1000));
     out = release;
     out *= old_note.vel / 127.0;
   }
@@ -139,14 +139,14 @@ sample_t generate_wave(sample_t *note_frqs, jack_nframes_t sr) {
         out = square_w(ramp);
         break;
       case 2:
-        out = sawtooth_w(ramp); 
+        out = sawtooth_w(ramp);
         break;
       case 3:
         out = triangle_w(ramp);
         break;
     }
   }
-  else 
+  else
     out = (sample_t)0.0;
   return (envelope * out);
 

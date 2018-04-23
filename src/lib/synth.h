@@ -1,7 +1,7 @@
 /*  synth.h header of wave synthesizer
- 
+
     Copyright (C) 2014-2015 Michele Sorcinelli
-    
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -20,7 +20,7 @@
 #include "data.h"
 #include "notes.h"
 
-extern void calc_note_frqs(sample_t *, sample_t); 
+extern void calc_note_frqs(sample_t *, sample_t);
 extern sample_t sine_w(sample_t);
 extern sample_t square_w(sample_t);
 extern sample_t sawtooth_w(sample_t);

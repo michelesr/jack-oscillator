@@ -1,7 +1,7 @@
 /*  simple_osc.c main() implementation source file
- 
+
     Copyright (C) 2014-2015 Michele Sorcinelli
-    
+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
@@ -46,7 +46,7 @@ sample_t note_frqs[128];
 
 int process(jack_nframes_t, void *);
 int srate(jack_nframes_t, void *);
-void jack_shutdown(void *); 
+void jack_shutdown(void *);
 
 /* function definition */
 
@@ -64,9 +64,9 @@ int process(jack_nframes_t nframes, void *arg) {
 
 
   for(i=0; i<nframes; i++) {
-    
+
     /* check channel */
-    if ((event_index < event_count) && 
+    if ((event_index < event_count) &&
         ((*(in_event.buffer) & 0x0f) == (channel-1)))  {
 
       switch (*(in_event.buffer) & 0xf0) {
@@ -118,7 +118,7 @@ int process(jack_nframes_t nframes, void *arg) {
     out[i] = generate_wave(note_frqs,sr);
 
   }
-  return 0;      
+  return 0;
 }
 
 int srate(jack_nframes_t nframes, void *arg) {
@@ -139,9 +139,9 @@ int main(int argc, char **argv) {
 
   if (argc < 2) {
     printf("Type client name (max 10 char): ");
-    scanf("%s", name); 
+    scanf("%s", name);
   }
-  else 
+  else
     strcpy(name, argv[1]);
 
   if (!(client = jack_client_open(name, JackNullOption, NULL))) {

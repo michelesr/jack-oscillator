@@ -31,16 +31,16 @@ Usage
         osc1: h
 
         h -> help
-        c -> change channel 
+        c -> change channel
         W -> change waveform
         A -> set amplitude
         a -> set attack time and attack amplitude peak
         d -> set decay time
         s -> set sustain
-        r -> set release time 
+        r -> set release time
 
 * MIDI CONTROLS - Volume (Controller #7) , Program Change (MIDI Program/Bank Change)
 
-This is free software... feel free to change and redistribute, under the same license (GPLv3). 
+This is free software... feel free to change and redistribute, under the same license (GPLv3).
 
 Is all for now... enjoy and good luck... remember this is a experimental project, if you have some question, contact me at mikefender@cryptolab.net, if you wanna contribute, feel free to do it.
