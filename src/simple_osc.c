@@ -135,13 +135,13 @@ void jack_shutdown(void *arg) {
 int main(int argc, char **argv) {
 
   jack_client_t *client;
-  char name[11];
+  char name[256];
 
   if (argc < 2) {
-    printf("Type client name (max 10 char): ");
-    scanf("%s", name);
+    printf("Type client name: ");
+    scanf("%256s", name);
   }
-  else
+else
     strcpy(name, argv[1]);
 
   if (!(client = jack_client_open(name, JackNullOption, NULL))) {

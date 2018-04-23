@@ -17,4 +17,4 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-extern shell_loop(char *);
+extern void shell_loop(char *);

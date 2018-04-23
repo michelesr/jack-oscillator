@@ -41,7 +41,7 @@ void ui_set_channel() {
   unsigned short c;
   do {
     printf("select channel from 1 to 16: ");
-    scanf("%d", &c);
+    scanf("%hu", &c);
   }
   while (!set_channel(c));
 }
@@ -90,7 +90,7 @@ void ui_set_release() {
 }
 
 void ui_set_waveform() {
-  char c;
+  int w;
 
   while(getchar() != '\n');
 
@@ -102,9 +102,9 @@ void ui_set_waveform() {
 
   do {
     printf("waveform: ");
-    scanf("%d", &c);
+    scanf("%d", &w);
   }
-  while(!set_waveform(c));
+  while(!set_waveform(w));
 
 }
 void shell_loop(char *name) {
